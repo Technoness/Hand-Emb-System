@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hand Embroidery Production & Inventory SaaS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪡</text></svg>">
+</head>
+<body>
+
+  <!-- ============================================================== -->
+  <!-- FULL SCREEN AUTHENTICATION OVERLAY                             -->
+  <!-- ============================================================== -->
+  <div id="auth-screen-overlay" class="auth-screen-overlay" style="display: flex;">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-brand-logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <h2>CraftFlow</h2>
+        <span class="brand-badge" style="font-size: 0.72rem; margin-top: 0.2rem; display: inline-block;">Hand Emb System</span>
+        <p class="auth-sub" style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.35rem;">Garment Production & Inward/Outward Inventory</p>
+      </div>
+
+      <form id="form-login" class="auth-form">
+        <!-- Error Alert -->
+        <div id="auth-error-alert" class="auth-alert" style="display: none;"></div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="login-username">Username:</label>
+          <div class="input-icon-wrapper">
+            <input type="text" class="app-input" id="login-username" required placeholder="Enter username (e.g. admin)" autocomplete="username" autofocus>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <label for="login-password" style="margin: 0;">Password:</label>
+            <button type="button" id="btn-toggle-login-pass" class="btn-text-link" style="font-size: 0.75rem; color: var(--primary); background: none; border: none; cursor: pointer;">Show</button>
+          </div>
+          <div class="input-icon-wrapper">
+            <input type="password" class="app-input" id="login-password" required placeholder="Enter password" autocomplete="current-password">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="btn-submit-login" style="padding: 0.75rem; font-weight: 700; width: 100%;">
+          🔐 Sign In to Workspace
+        </button>
+
+        <div class="auth-footer-tip" style="margin-top: 1.25rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-md); font-size: 0.775rem; color: var(--text-muted); text-align: center; line-height: 1.4;">
+          <strong style="color: var(--primary);">👑 Super Admin Account:</strong><br>
+          Username: <code style="color: var(--text-main); font-weight: 700;">admin</code> &nbsp;|&nbsp; Password: <code style="color: var(--text-main); font-weight: 700;">admin123</code>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <!-- Top Row: Brand & System Actions -->
+    <div class="header-top-bar">
+      <div class="brand-wrapper">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <h1>CraftFlow</h1>
+            <span class="brand-badge">Hand Emb</span>
+          </div>
+          <p class="brand-subtitle">Apparel & Garment Production Suite</p>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <!-- Neon Cloud Pill -->
+        <div class="neon-status-pill" id="neon-quick-status" title="Neon PostgreSQL Cloud Sync">
+          <span class="status-dot" id="neon-status-dot"></span>
+          <span class="neon-status-label" id="neon-status-label">Neon Local</span>
+        </div>
+
+        <!-- Theme Switcher -->
+        <button class="btn btn-secondary btn-icon" id="btn-theme-toggle" title="Toggle Light/Dark Theme">
+          <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+
+        <!-- Current User Profile & Management (RBAC) -->
+        <div class="user-header-profile" id="user-header-profile">
+          <div class="user-avatar-badge" id="header-user-avatar">AG</div>
+          <div class="user-meta-text">
+            <span class="user-name-text" id="header-user-name">Amir Ghouri</span>
+            <span class="user-role-tag" id="header-user-role">Admin</span>
+          </div>
+          <!-- Admin-Only Users Management Button -->
+          <button class="btn btn-secondary btn-sm btn-users-mgmt" id="btn-open-user-mgmt" title="Manage User Accounts & Permissions">
+            <span>👥</span>
+            <span class="btn-users-label">Users</span>
+          </button>
+          <!-- Logout Button -->
+          <button class="btn btn-secondary btn-sm btn-logout" id="btn-user-logout" title="Log Out">
+            🚪
+          </button>
+        </div>
+
+        <!-- New Entry Button -->
+        <button class="btn btn-primary btn-new-entry" id="btn-open-new-entry">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span class="btn-entry-text">New Style Entry</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs Row -->
+    <div class="header-nav-row">
+      <nav class="nav-tabs" id="main-nav-tabs">
+        <button class="nav-tab-btn active" data-tab="master-inventory">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="9" y1="21" x2="9" y2="9"></line>
+          </svg>
+          <span class="tab-label">Master Inventory</span>
+          <span class="badge-pill" id="badge-master-count">0</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="receiving-log">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="tab-label">Receiving Log</span>
+          <span class="badge-pill" id="badge-rec-count">0</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="dispatch-log">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span class="tab-label">Dispatch Log</span>
+          <span class="badge-pill" id="badge-dis-count">0</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="final-style">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span class="tab-label">Daily Sheet</span>
+          <span class="badge-pill" id="badge-final-count">0</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="contractors">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span class="tab-label">Contractors</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="neon-sync">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
+          <span class="tab-label">Neon Cloud</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+
+    <!-- KPI Summary Cards Banner -->
+    <section class="kpi-grid">
+      <div class="kpi-card cyan">
+        <span class="kpi-label">Total Cut Quantity</span>
+        <div class="kpi-value" id="kpi-total-cut">0</div>
+        <span class="kpi-sub">Total pieces cut for embroidery</span>
+      </div>
+
+      <div class="kpi-card indigo">
+        <span class="kpi-label">Received in H-Emb</span>
+        <div class="kpi-value" id="kpi-total-received">0</div>
+        <span class="kpi-sub">Physically arrived from cutting/stock</span>
+      </div>
+
+      <div class="kpi-card emerald">
+        <span class="kpi-label">Dispatched From H-Emb</span>
+        <div class="kpi-value" id="kpi-total-dispatched">0</div>
+        <span class="kpi-sub">Completed & returned to unit</span>
+      </div>
+
+      <div class="kpi-card rose">
+        <span class="kpi-label">Balance In H-Emb (WIP)</span>
+        <div class="kpi-value" id="kpi-total-balance-hemb">0</div>
+        <span class="kpi-sub">Currently with contractors / on adda</span>
+      </div>
+
+      <div class="kpi-card amber">
+        <span class="kpi-label">Balance From Stock</span>
+        <div class="kpi-value" id="kpi-total-balance-stock">0</div>
+        <span class="kpi-sub">Pending to be delivered by cutting</span>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: MASTER INVENTORY VIEW (Exact to First Image)           -->
+    <!-- ============================================================== -->
+    <section id="master-inventory-view" class="tab-view active">
+      <!-- Master Inventory Toolbar Panel (Search, Filters & Full-Width Action Grid) -->
+      <div class="master-toolbar-panel">
+        <div class="master-filter-row">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted)">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="master-search-input" placeholder="Search Style Code, Contractor, Challan...">
+          </div>
+
+          <div class="filter-group">
+            <select class="app-select" id="filter-contractor">
+              <option value="">All Contractors</option>
+            </select>
+
+            <select class="app-select" id="filter-category">
+              <option value="">All Categories</option>
+              <option value="Shirt">Shirt</option>
+              <option value="Dupatta">Dupatta</option>
+              <option value="Trouser">Trouser</option>
+              <option value="Gala">Gala</option>
+              <option value="Sleeve">Sleeve</option>
+            </select>
+
+            <select class="app-select" id="filter-balance-status">
+              <option value="">All Balances</option>
+              <option value="pending_hemb">Has H-Emb Balance (> 0)</option>
+              <option value="pending_stock">Pending From Stock (> 0)</option>
+              <option value="completed">Completed (0 Balance)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="master-actions-grid">
+          <button class="btn btn-action-dock" id="btn-quick-receiving" title="Quickly record incoming goods from cutting">
+            <span class="btn-dock-icon">📥</span>
+            <span>+ Receive Stock</span>
+          </button>
+          <button class="btn btn-action-dock" id="btn-quick-dispatch" title="Quickly record finished embroidery dispatch">
+            <span class="btn-dock-icon">📤</span>
+            <span>+ Dispatch Entry</span>
+          </button>
+          <button class="btn btn-action-dock" id="btn-goto-receiving" title="View all receiving challan line entries">
+            <span class="btn-dock-icon">📋</span>
+            <span>View Receiving Log</span>
+          </button>
+          <button class="btn btn-action-dock" id="btn-goto-dispatch" title="View all dispatch challan line entries">
+            <span class="btn-dock-icon">🚚</span>
+            <span>View Dispatch Log</span>
+          </button>
+          <button class="btn btn-action-dock" id="btn-export-master-csv" title="Export current table to CSV file">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Export Excel/CSV</span>
+          </button>
+          <button class="btn btn-action-dock btn-action-danger" id="btn-clear-all" title="Clear all local data and start fresh">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>Clear All Data</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Master Inventory Table (Excel Image 1 Structure) -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="master-table" id="table-master-inventory">
+            <thead>
+              <!-- Group Header Row matching Excel Layout -->
+              <tr class="group-header">
+                <th colspan="5">STYLE INFORMATION</th>
+                <th colspan="4" class="rec-section">RECEIVING SECTION</th>
+                <th colspan="6" class="dis-section">DISPATCH SECTION</th>
+                <th>ACTIONS</th>
+              </tr>
+              <!-- Column Header Row -->
+              <tr class="column-header">
+                <th>SR</th>
+                <th>STYLE CODE</th>
+                <th>SHIP</th>
+                <th>CATEGORY</th>
+                <th>CUT QTY</th>
+                
+                <!-- Receiving Section Columns -->
+                <th class="rec-section">RECEIVED QTY</th>
+                <th class="rec-section">BALANCE FROM STOCK</th>
+                <th class="rec-section">DATE RECEIVE</th>
+                <th class="rec-section">CHALLAN REC</th>
+                
+                <!-- Dispatch Section Columns -->
+                <th class="dis-section">DISPATCH FROM H-EMB</th>
+                <th class="dis-section">BALNCE FROM H-EMB</th>
+                <th class="dis-section">TOTAL BALANCE</th>
+                <th class="dis-section">DATE DISPATCH</th>
+                <th class="dis-section">CHALLAN DIS</th>
+                <th class="dis-section">CONT NAME</th>
+                
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-master-inventory">
+              <!-- Dynamically populated from JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: INWARD RECEIVING LOG (Dedicated Line Item Table)         -->
+    <!-- ============================================================== -->
+    <section id="receiving-log-view" class="tab-view">
+      <div class="view-toolbar">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+            <span>📥 Inward Receiving Log</span>
+            <span class="badge-tag inline" id="rec-kpi-count-badge">0 Challans</span>
+          </h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Every receiving challan from cutting / stock saved as an individual line item.</p>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted)">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="rec-search-input" placeholder="Search Style Code, Challan, Contractor...">
+          </div>
+
+          <select class="app-select" id="filter-rec-category">
+            <option value="">All Categories</option>
+            <option value="Shirt">Shirt</option>
+            <option value="Dupatta">Dupatta</option>
+            <option value="Trouser">Trouser</option>
+            <option value="Gala">Gala</option>
+            <option value="Sleeve">Sleeve</option>
+          </select>
+
+          <select class="app-select" id="filter-rec-contractor">
+            <option value="">All Contractors</option>
+          </select>
+
+          <button class="btn btn-primary btn-sm" id="btn-open-rec-modal">
+            📥 + New Receiving Entry
+          </button>
+
+          <button class="btn btn-secondary btn-sm" id="btn-export-rec-csv">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Receiving CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Receiving Mini KPI Banner -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1rem;">
+        <div class="kpi-card cyan">
+          <span class="kpi-label">Total Receiving Entries</span>
+          <div class="kpi-value" id="rec-kpi-entries">0</div>
+          <span class="kpi-sub">Total challan line items</span>
+        </div>
+        <div class="kpi-card indigo">
+          <span class="kpi-label">Total Pieces Received</span>
+          <div class="kpi-value" id="rec-kpi-pieces">0</div>
+          <span class="kpi-sub">Sum of incoming garments</span>
+        </div>
+        <div class="kpi-card emerald">
+          <span class="kpi-label">Styles & Categories</span>
+          <div class="kpi-value" id="rec-kpi-distinct">0</div>
+          <span class="kpi-sub">Distinct style varieties</span>
+        </div>
+      </div>
+
+      <!-- Receiving Log Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="master-table" id="table-receiving-log">
+            <thead>
+              <tr class="column-header">
+                <th style="width: 50px; text-align: center;">SR</th>
+                <th>DATE RECEIVE</th>
+                <th>CHALLAN #</th>
+                <th>STYLE CODE</th>
+                <th>CATEGORY</th>
+                <th>CONTRACTOR</th>
+                <th style="text-align: right;">CUT ORDER</th>
+                <th style="text-align: right; background: rgba(14, 165, 233, 0.1);">RECEIVED QTY</th>
+                <th>REMARKS</th>
+                <th style="width: 70px; text-align: center;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-receiving-log">
+              <!-- Dynamically populated -->
+            </tbody>
+            <tfoot id="tfoot-receiving-log" style="font-weight: 800; background: var(--bg-card-hover);">
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: OUTWARD DISPATCH LOG (Dedicated Line Item Table)        -->
+    <!-- ============================================================== -->
+    <section id="dispatch-log-view" class="tab-view">
+      <div class="view-toolbar">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+            <span>📤 Outward Dispatch Log</span>
+            <span class="badge-tag inline" id="dis-kpi-count-badge">0 Challans</span>
+          </h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Every finished hand embroidery dispatch challan to unit saved as an individual line item.</p>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted)">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="dis-search-input" placeholder="Search Style Code, Challan, Contractor...">
+          </div>
+
+          <select class="app-select" id="filter-dis-category">
+            <option value="">All Categories</option>
+            <option value="Shirt">Shirt</option>
+            <option value="Dupatta">Dupatta</option>
+            <option value="Trouser">Trouser</option>
+            <option value="Gala">Gala</option>
+            <option value="Sleeve">Sleeve</option>
+          </select>
+
+          <select class="app-select" id="filter-dis-contractor">
+            <option value="">All Contractors</option>
+          </select>
+
+          <button class="btn btn-primary btn-sm" id="btn-open-dis-modal">
+            📤 + New Dispatch Entry
+          </button>
+
+          <button class="btn btn-secondary btn-sm" id="btn-export-dis-csv">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Dispatch CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Dispatch Mini KPI Banner -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1rem;">
+        <div class="kpi-card indigo">
+          <span class="kpi-label">Total Dispatch Entries</span>
+          <div class="kpi-value" id="dis-kpi-entries">0</div>
+          <span class="kpi-sub">Total challan line items</span>
+        </div>
+        <div class="kpi-card emerald">
+          <span class="kpi-label">Total Pieces Dispatched</span>
+          <div class="kpi-value" id="dis-kpi-pieces">0</div>
+          <span class="kpi-sub">Finished embroidery sent to unit</span>
+        </div>
+        <div class="kpi-card rose">
+          <span class="kpi-label">Styles & Categories</span>
+          <div class="kpi-value" id="dis-kpi-distinct">0</div>
+          <span class="kpi-sub">Distinct style varieties</span>
+        </div>
+      </div>
+
+      <!-- Dispatch Log Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="master-table" id="table-dispatch-log">
+            <thead>
+              <tr class="column-header">
+                <th style="width: 50px; text-align: center;">SR</th>
+                <th>DATE DISPATCH</th>
+                <th>CHALLAN #</th>
+                <th>STYLE CODE</th>
+                <th>CATEGORY</th>
+                <th>CONTRACTOR</th>
+                <th style="text-align: right; background: rgba(99, 102, 241, 0.1);">DISPATCH QTY</th>
+                <th>STATUS / REMARKS</th>
+                <th style="width: 70px; text-align: center;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-dispatch-log">
+              <!-- Dynamically populated -->
+            </tbody>
+            <tfoot id="tfoot-dispatch-log" style="font-weight: 800; background: var(--bg-card-hover);">
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: DAILY FINAL STYLE SHEET (Exact to Second Image)        -->
+    <!-- ============================================================== -->
+    <section id="final-style-view" class="tab-view">
+      
+      <!-- Print Only Title Header for Clean Paper Reports -->
+      <div class="print-only-title" style="display: none;">
+        <h2>HAND EMBROIDERY DEPARTMENT - DAILY RUNNING STYLE STATUS</h2>
+        <p id="print-date-display">Date: 17-Oct-2026</p>
+      </div>
+
+      <!-- Report Header Banner -->
+      <div class="report-header-banner">
+        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em;">Daily Running Style Status Sheet</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Auto-fetches contractor, quantities, and balances directly from Master Inventory.</p>
+          </div>
+
+          <div class="date-selector-wrapper">
+            <span style="font-weight: 700; font-size: 0.85rem; color: var(--text-muted);">Sheet Date:</span>
+            <input type="date" class="app-input" id="report-date-picker" value="2026-10-17">
+            <div class="date-display-badge" id="report-formatted-date">17-Oct-2026</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn btn-secondary btn-sm" id="btn-auto-populate-active" title="Add all active styles with pending H-Emb balance to this sheet">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            Auto-Add Active Styles
+          </button>
+
+          <button class="btn btn-secondary btn-sm" id="btn-export-final-csv" title="Export this report to Excel/CSV">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            </svg>
+            Export Sheet
+          </button>
+
+          <button class="btn btn-primary btn-sm" id="btn-print-report" title="Print clean official report for management">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Print / PDF Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Add Style Row (User selects Style Code + Category, Rest auto-fetches) -->
+      <div class="quick-add-bar">
+        <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary); display: flex; align-items: center; gap: 0.35rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          Select Style to Add:
+        </span>
+
+        <select class="app-select" id="quick-style-select" style="min-width: 200px;">
+          <option value="">-- Choose Style Code --</option>
+        </select>
+
+        <select class="app-select" id="quick-category-select">
+          <option value="Shirt">Shirt</option>
+          <option value="Dupatta">Dupatta</option>
+          <option value="Trouser">Trouser</option>
+          <option value="Gala">Gala</option>
+          <option value="Sleeve">Sleeve</option>
+        </select>
+
+        <div style="display: flex; align-items: center; gap: 0.4rem; flex: 1; min-width: 220px;">
+          <input type="text" class="app-input" id="quick-remarks-input" placeholder="Time / Status / Remarks (e.g. MATERIAL NOT AVAILABLE)" style="width: 100%;">
+          
+          <!-- Preset quick buttons for remarks -->
+          <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickRemark('MATERIAL NOT AVAILABLE')" title="Material Not Available">M-NA</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickRemark('MATERIAL ISSUE')" title="Material Issue">M-Issue</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickRemark('Inline')" title="Inline production">Inline</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickRemark('ALTER')" title="Alteration">Alter</button>
+        </div>
+
+        <button class="btn btn-primary" id="btn-add-final-style">
+          + Add to Daily Sheet
+        </button>
+      </div>
+
+      <!-- Final Style Main Grid Layout -->
+      <div class="final-style-grid">
+        <!-- Table matching Image 2 -->
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="master-table" id="table-final-styles">
+              <thead>
+                <tr class="column-header">
+                  <th style="width: 45px; text-align: center;">S NO</th>
+                  <th>STYLE CODE</th>
+                  <th>CATEGORY</th>
+                  <th>CONT NAME</th>
+                  <th>CUT QTY</th>
+                  <th>RECEIVED QTY</th>
+                  <th style="background: rgba(244, 63, 94, 0.1);">BALANCE FROM STOCK</th>
+                  <th style="background: rgba(244, 63, 94, 0.15);">BALNCE FROM H-EMB</th>
+                  <th style="min-width: 200px;">TIME / REMARKS / STATUS</th>
+                  <th style="width: 60px; text-align: center;">ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-final-styles">
+                <!-- Dynamically populated from JS -->
+              </tbody>
+              <tfoot id="tfoot-final-styles" style="font-weight: 800; background: var(--bg-card-hover);">
+                <!-- Totals row calculated automatically -->
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sidebar Summary Cards (Contractor Balances from Excel Sheet) -->
+        <aside class="summary-sidebar">
+          <!-- Contractor Balance Widget -->
+          <div class="contractor-summary-card">
+            <h3>
+              <span>Contractor Pending Workload</span>
+              <span class="badge-tag inline" id="cont-summary-count">0 Conts</span>
+            </h3>
+            <div id="contractor-summary-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Production Quick Notes Card -->
+          <div class="contractor-summary-card">
+            <h3>
+              <span>Floor Quick Checklist</span>
+            </h3>
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" checked> Verify incoming challans with gate pass
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" checked> Check material issues (thread, beads, sequins)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox"> Prioritize CPC export batch (JGF-26-1962)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox"> Reconcile evening dispatches before print
+              </label>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: CONTRACTORS WORKLOAD & PERFORMANCE                     -->
+    <!-- ============================================================== -->
+    <section id="contractors-view" class="tab-view">
+      <div class="view-toolbar">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800;">Contractor Workload & Directory</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Real-time tracking of active pieces, dispatch efficiency, and balances per contractor.</p>
+        </div>
+
+        <button class="btn btn-primary" id="btn-open-new-contractor">
+          + Add New Contractor
+        </button>
+      </div>
+
+      <div class="kpi-grid" id="contractors-card-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));">
+        <!-- Dynamically populated -->
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: NEON POSTGRESQL SYNC & SETTINGS                        -->
+    <!-- ============================================================== -->
+    <section id="neon-sync-view" class="tab-view">
+      <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Neon Banner Card -->
+        <div class="contractor-summary-card" style="padding: 1.75rem;">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: #00e599; display: flex; align-items: center; justify-content: center; color: black; font-weight: 900; font-size: 1.3rem;">
+              N
+            </div>
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.2rem;">Neon PostgreSQL Cloud Sync</h2>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Connect your serverless PostgreSQL database to synchronize master inventory and daily reports across all devices.</p>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Neon Guide Alert -->
+          <div style="background: rgba(0, 229, 153, 0.08); border: 1px solid rgba(0, 229, 153, 0.3); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 0.825rem; line-height: 1.6;">
+            <div style="font-weight: 700; color: #00e599; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span>🔑 How to Connect Neon in 3 Simple Steps:</span>
+            </div>
+            <ol style="margin-left: 1.25rem; color: var(--text-main); display: flex; flex-direction: column; gap: 0.25rem;">
+              <li>In your <strong>Neon Console</strong> modal, click <strong>"Show password"</strong> (bottom-left) so the asterisks (<code>****</code>) reveal your actual password!</li>
+              <li>Click <strong>"Copy snippet"</strong> to copy the full string: <code>postgresql://neondb_owner:...@ep-...aws.neon.tech/neondb...</code></li>
+              <li>Paste it into the box below and click <strong>"Save Neon Settings"</strong> & then <strong>"Test Neon Connection"</strong>.</li>
+            </ol>
+          </div>
+
+          <!-- Connection Form -->
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label for="neon-conn-string">Neon Database Connection String (Direct or Pooled):</label>
+              <button type="button" id="btn-toggle-neon-pw" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 0.725rem;">Show / Hide</button>
+            </div>
+            <input type="password" class="app-input" id="neon-conn-string" placeholder="postgresql://neondb_owner:YOUR_ACTUAL_PASSWORD@ep-lucky-fog-aoc4urdw-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require">
+            <span style="font-size: 0.725rem; color: var(--text-faint);">Make sure your real password is in the URL instead of asterisks (****).</span>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="neon-endpoint-url">Neon HTTP SQL Endpoint URL (Optional):</label>
+              <input type="text" class="app-input" id="neon-endpoint-url" placeholder="https://ep-cool-pond-123456.us-east-2.aws.neon.tech/sql">
+            </div>
+
+            <div class="form-group">
+              <label for="neon-api-key">Neon Password / Auth Token:</label>
+              <input type="password" class="app-input" id="neon-api-key" placeholder="Enter database password or API token">
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-secondary" id="btn-test-neon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              Test Neon Connection
+            </button>
+
+            <button class="btn btn-primary" id="btn-save-neon-cfg">
+              Save Neon Settings
+            </button>
+
+            <button class="btn btn-secondary" id="btn-init-neon-tables">
+              Initialize Neon Tables
+            </button>
+
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 0.6rem; background: var(--bg-card-hover); padding: 0.4rem 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; margin: 0;">
+                <input type="checkbox" id="chk-auto-sync" style="width: 17px; height: 17px; cursor: pointer;">
+                <span>Auto-sync on changes</span>
+              </label>
+              <span class="badge-tag inline" id="auto-sync-status-badge" style="font-size: 0.7rem; padding: 1px 6px;">Persistent</span>
+            </div>
+          </div>
+
+          <!-- Connection Status Box -->
+          <div id="neon-test-result" style="margin-top: 1.25rem; display: none;"></div>
+        </div>
+
+        <!-- Sync Actions Card -->
+        <div class="contractor-summary-card">
+          <h3>
+            <span>Cloud Synchronization Controls</span>
+            <span id="last-sync-time" style="font-size: 0.75rem; color: var(--text-faint);">Never synced</span>
+          </h3>
+
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem;">
+            <button class="btn btn-success" id="btn-push-to-neon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 19V5M5 12l7-7 7 7"></path>
+              </svg>
+              Push Local Data to Neon Cloud
+            </button>
+
+            <button class="btn btn-secondary" id="btn-pull-from-neon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"></path>
+              </svg>
+              Pull Cloud Data from Neon
+            </button>
+
+            <button class="btn btn-secondary" id="btn-view-schema-modal">
+              View PostgreSQL Schema (schema.sql)
+            </button>
+          </div>
+        </div>
+
+        <!-- Offline & LocalStorage Information -->
+        <div class="contractor-summary-card">
+          <h3>
+            <span>High Reliability Architecture (Offline-First)</span>
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+            This software is designed with an <strong>Offline-First architecture</strong>. All your master records, dispatch entries, contractor assignments, and daily style sheets are instantly saved in your local browser cache. You can use the software with 100% full speed even without an internet connection, and whenever you connect to Neon PostgreSQL, all your data synchronizes to the cloud!
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: NEW / EDIT MASTER INVENTORY ENTRY (Image 1 fields)     -->
+  <!-- ============================================================== -->
+  <!-- ============================================================== -->
+  <!-- MODAL: STYLE PRODUCTION ENTRY (RECEIVING & DISPATCH TOGGLE)   -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-master-entry">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-entry-title">Style Production & Balance Entry</h2>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Receiving from cutting, dispatching to unit & live balance tracking.</p>
+        </div>
+        <button class="btn btn-secondary btn-icon" onclick="closeModal('modal-master-entry')">✕</button>
+      </div>
+
+      <form id="form-master-entry">
+        <input type="hidden" id="entry-id" value="">
+        <input type="hidden" id="current-form-mode" value="receiving">
+
+        <div class="modal-body">
+
+          <!-- Inline Form Alert (Success / Error notification directly inside form) -->
+          <div id="modal-form-alert" style="display: none; padding: 0.75rem 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.85rem; font-weight: 600;"></div>
+
+          <!-- Form Mode Toggle Bar (Receiving vs Dispatch) -->
+          <div class="form-toggle-bar">
+            <button type="button" class="form-toggle-tab active" data-mode="receiving" id="tab-btn-receiving">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              📥 Receiving Form (Stock In)
+            </button>
+            <button type="button" class="form-toggle-tab" data-mode="dispatch" id="tab-btn-dispatch">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              📤 Dispatch Form (H-Emb Out)
+            </button>
+            <button type="button" class="form-toggle-tab" data-mode="both" id="tab-btn-both">
+              📋 Full Details
+            </button>
+          </div>
+
+          <!-- Section 1: Style & Cutting Information (Always Visible) -->
+          <div class="form-section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            1. Style & Cutting Information
+            <span id="style-fetch-status" class="badge-tag" style="display: none; margin-left: auto; text-transform: none; font-size: 0.725rem;"></span>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label for="entry-style-code">Style Code * (Live Search):</label>
+              <input type="text" class="app-input" id="entry-style-code" required placeholder="Type Style Code to fetch..." list="styles-master-datalist" autocomplete="off">
+              <datalist id="styles-master-datalist"></datalist>
+            </div>
+
+            <div class="form-group">
+              <label for="entry-category">Category *:</label>
+              <select class="app-select" id="entry-category" required>
+                <option value="Shirt">Shirt</option>
+                <option value="Dupatta">Dupatta</option>
+                <option value="Trouser">Trouser</option>
+                <option value="Gala">Gala</option>
+                <option value="Sleeve">Sleeve</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="entry-contractor">Contractor Name *:</label>
+              <input type="text" class="app-input" id="entry-contractor" list="contractors-datalist" placeholder="e.g. Touseef, Asif" required>
+              <datalist id="contractors-datalist"></datalist>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label for="entry-cut-qty">Cut Qty (Total Order) *:</label>
+              <input type="number" class="app-input" id="entry-cut-qty" min="0" required placeholder="e.g. 1760">
+            </div>
+
+            <div class="form-group">
+              <label for="entry-ship">Ship / Lot (Optional):</label>
+              <input type="text" class="app-input" id="entry-ship" placeholder="e.g. CPC">
+            </div>
+
+            <div class="form-group">
+              <label for="entry-sr">SR No:</label>
+              <input type="number" class="app-input" id="entry-sr" placeholder="e.g. 817">
+            </div>
+          </div>
+
+          <!-- Section 2: Receiving Section (Active in Receiving / Full Mode) -->
+          <div id="form-section-receiving">
+            <div class="form-section-title" style="color: #38bdf8;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              2. Receiving Section (From Stock Into H-Emb)
+            </div>
+
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label for="entry-received-qty">Total Received Qty:</label>
+                <input type="number" class="app-input" id="entry-received-qty" min="0" value="0">
+              </div>
+
+              <div class="form-group">
+                <label for="entry-date-receive">Date Receive:</label>
+                <input type="text" class="app-input" id="entry-date-receive" placeholder="e.g. 17-10-26">
+              </div>
+
+              <div class="form-group">
+                <label for="entry-challan-rec">Challan Rec:</label>
+                <input type="text" class="app-input" id="entry-challan-rec" placeholder="e.g. 217264">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Dispatch Section (Active in Dispatch / Full Mode) -->
+          <div id="form-section-dispatch">
+            <div class="form-section-title" style="color: #a5b4fc;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              3. Dispatch Section (From H-Emb Out To Unit)
+            </div>
+
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label for="entry-dispatch-qty">Total Dispatch from H-Emb:</label>
+                <input type="number" class="app-input" id="entry-dispatch-qty" min="0" value="0">
+              </div>
+
+              <div class="form-group">
+                <label for="entry-date-dispatch">Date Dispatch:</label>
+                <input type="text" class="app-input" id="entry-date-dispatch" placeholder="e.g. 17-10-26">
+              </div>
+
+              <div class="form-group">
+                <label for="entry-challan-dis">Challan Dis:</label>
+                <input type="text" class="app-input" id="entry-challan-dis" placeholder="e.g. 210005">
+              </div>
+            </div>
+          </div>
+
+          <!-- Production Remarks / Status (Placed Above KPIs) -->
+          <div class="form-group" style="margin-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <label for="entry-remarks">Production Remarks / Status:</label>
+              <div style="display: flex; gap: 0.35rem;">
+                <button type="button" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 0.7rem;" onclick="document.getElementById('entry-remarks').value='MATERIAL NOT AVAILABLE'; updateModalPreviewBalances();">M-NA</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 0.7rem;" onclick="document.getElementById('entry-remarks').value='MATERIAL ISSUE'; updateModalPreviewBalances();">M-Issue</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 0.7rem;" onclick="document.getElementById('entry-remarks').value='Inline'; updateModalPreviewBalances();">Inline</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 0.7rem;" onclick="document.getElementById('entry-remarks').value='ALTER'; updateModalPreviewBalances();">Alter</button>
+              </div>
+            </div>
+            <input type="text" class="app-input" id="entry-remarks" placeholder="e.g. MATERIAL NOT AVAILABLE, 810 inline hai, ALTER...">
+          </div>
+
+          <!-- LIVE KPI SUMMARY GRID (SET BELOW REMARKS) -->
+          <div class="form-section-title" style="margin-top: 1.25rem; color: var(--text-main);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>
+            Live Style Production & Balance Summary
+          </div>
+
+          <div class="form-kpi-grid">
+            <!-- 1. Cut Qty -->
+            <div class="form-kpi-card indigo">
+              <span class="form-kpi-label">Order Cut Qty</span>
+              <div class="form-kpi-val" id="preview-total-cut">0</div>
+              <span class="form-kpi-sub">Total cutting pieces</span>
+            </div>
+
+            <!-- 2. Total Received from Stock -->
+            <div class="form-kpi-card sky">
+              <span class="form-kpi-label">Total Received From Stock</span>
+              <div class="form-kpi-val" id="preview-total-received">0</div>
+              <span class="form-kpi-sub">Arrived from stock into H-Emb</span>
+            </div>
+
+            <!-- 3. Balance From Stock -->
+            <div class="form-kpi-card rose">
+              <span class="form-kpi-label">Balance From Stock</span>
+              <div class="form-kpi-val" id="preview-bal-stock">0</div>
+              <span class="form-kpi-sub">Cut - Received (Pending)</span>
+            </div>
+
+            <!-- 4. Total Dispatched From H-Emb -->
+            <div class="form-kpi-card emerald">
+              <span class="form-kpi-label">Total Dispatched (H-Emb)</span>
+              <div class="form-kpi-val" id="preview-total-dispatched">0</div>
+              <span class="form-kpi-sub">Completed & sent to unit</span>
+            </div>
+
+            <!-- 5. Balance in H-Emb (WIP) -->
+            <div class="form-kpi-card rose">
+              <span class="form-kpi-label">Balance In H-Emb (WIP)</span>
+              <div class="form-kpi-val" id="preview-bal-hemb">0</div>
+              <span class="form-kpi-sub">Received - Dispatched</span>
+            </div>
+
+            <!-- 6. Total Pending Balance -->
+            <div class="form-kpi-card amber">
+              <span class="form-kpi-label">Total Pending Balance</span>
+              <div class="form-kpi-val" id="preview-bal-total">0</div>
+              <span class="form-kpi-sub">Cut - Dispatched (Remaining)</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-master-entry')">Close / Done</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-master-entry">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Save Entry & Next
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: ADD / EDIT CONTRACTOR                                  -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-contractor">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <h2 id="modal-cont-title">Add New Contractor</h2>
+        <button class="btn btn-secondary btn-icon" onclick="closeModal('modal-contractor')">✕</button>
+      </div>
+
+      <form id="form-contractor">
+        <div class="modal-body">
+          <!-- Inline Contractor Alert -->
+          <div id="modal-cont-alert" style="display: none; padding: 0.65rem 0.85rem; border-radius: var(--radius-md); margin-bottom: 0.85rem; font-size: 0.825rem; font-weight: 600;"></div>
+
+          <div class="form-group">
+            <label for="cont-name">Contractor Name *:</label>
+            <input type="text" class="app-input" id="cont-name" required placeholder="e.g. Naveed, Touseef, Asif">
+          </div>
+
+          <div class="form-group">
+            <label for="cont-phone">Phone / WhatsApp:</label>
+            <input type="text" class="app-input" id="cont-phone" placeholder="e.g. +92 300 1234567">
+          </div>
+
+          <div class="form-group">
+            <label for="cont-status">Status:</label>
+            <select class="app-select" id="cont-status">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-contractor')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Contractor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: VIEW SCHEMA & SQL QUERY VIEWER                         -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-schema">
+    <div class="modal-card" style="max-width: 760px;">
+      <div class="modal-header">
+        <h2>PostgreSQL Schema (Neon Ready)</h2>
+        <button class="btn btn-secondary btn-icon" onclick="closeModal('modal-schema')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.825rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          You can copy and execute this exact DDL SQL inside your Neon Console -> SQL Editor:
+        </p>
+        <pre id="schema-code-block" style="background: #090d16; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; color: #a5b4fc; font-family: var(--font-mono); font-size: 0.775rem; max-height: 380px; overflow-y: auto; white-space: pre-wrap;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="copySchemaToClipboard()">Copy SQL to Clipboard</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-schema')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: WARNING & OVER-DISPATCH CONFIRMATION DIALOG             -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-confirm-dialog" style="z-index: 250;">
+    <div class="modal-card" style="max-width: 520px; border-top: 4px solid var(--accent-rose); box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+      <div class="modal-header" style="background: rgba(244, 63, 94, 0.08);">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(244, 63, 94, 0.2); color: var(--accent-rose); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0;">
+            ⚠️
+          </div>
+          <div>
+            <h2 id="confirm-dialog-title" style="font-size: 1.05rem; margin: 0; color: #fff;">Over-Dispatch Warning</h2>
+            <p id="confirm-dialog-subtitle" style="font-size: 0.775rem; color: var(--text-muted); margin: 0;">Quantity exceeds available stock in Hand-Embroidery</p>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-icon" id="confirm-dialog-btn-x">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+        <div id="confirm-dialog-message" style="font-size: 0.875rem; line-height: 1.5; margin-bottom: 1rem; color: var(--text-main);">
+          The dispatch quantity entered exceeds the total available Hand Embroidery balance.
+        </div>
+
+        <div id="confirm-dialog-details" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.825rem;">
+          <!-- Dynamic key-value pairs -->
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.12); border-left: 3px solid #f59e0b; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; color: #fde68a; line-height: 1.4;">
+          <strong>⚠️ Warning:</strong> Stock say jitna maal aya hay, dispatch ussay zyada ho raha hay. Kya aap waqai is entry ko confirm kar ke save karna chahtay hain?
+        </div>
+      </div>
+
+      <div class="modal-footer" style="background: var(--bg-surface); display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary" id="confirm-dialog-btn-cancel">
+          ✕ Cancel & Modify Qty
+        </button>
+        <button type="button" class="btn btn-primary" id="confirm-dialog-btn-proceed" style="background: linear-gradient(135deg, #f43f5e, #e11d48); border-color: #f43f5e; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.35);">
+          ✓ Yes, Allow Excess Entry
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: EDIT RECEIVING / DISPATCH CHALLAN LOG ENTRY             -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-edit-log-entry">
+    <div class="modal-card" style="max-width: 640px;">
+      <div class="modal-header">
+        <div>
+          <h2 id="edit-log-title">✏️ Edit Challan Entry</h2>
+          <p id="edit-log-subtitle" style="font-size: 0.775rem; color: var(--text-muted); margin: 0;">Update challan details & recalculate inventory balances</p>
+        </div>
+        <button type="button" class="btn btn-secondary btn-icon" onclick="closeModal('modal-edit-log-entry')">✕</button>
+      </div>
+
+      <form id="form-edit-log-entry">
+        <input type="hidden" id="edit-log-id">
+        <input type="hidden" id="edit-log-type" value="receiving">
+
+        <div class="modal-body">
+          <!-- Inline Alert / Warning Message -->
+          <div id="modal-edit-alert" style="display: none; padding: 0.65rem 0.85rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.825rem; font-weight: 600;"></div>
+
+          <!-- Live Balance Preview Bar inside Edit Modal -->
+          <div id="edit-log-kpi-banner" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; padding: 0.85rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Total Received (H-Emb)</div>
+              <div id="edit-preview-total-rec" style="font-family: var(--font-mono); font-weight: 800; font-size: 1.1rem; color: #38bdf8;">0</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Total Dispatched</div>
+              <div id="edit-preview-total-dis" style="font-family: var(--font-mono); font-weight: 800; font-size: 1.1rem; color: #818cf8;">0</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Available in H-Emb (WIP)</div>
+              <div id="edit-preview-bal-hemb" style="font-family: var(--font-mono); font-weight: 800; font-size: 1.1rem; color: var(--accent-pink);">0</div>
+            </div>
+          </div>
+
+          <!-- Challan # & Date -->
+          <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+            <div class="form-group">
+              <label for="edit-log-challan">Challan Number *:</label>
+              <input type="text" class="app-input" id="edit-log-challan" required placeholder="e.g. 217267">
+            </div>
+            <div class="form-group">
+              <label for="edit-log-date">Date (DD-MM-YY) *:</label>
+              <input type="text" class="app-input" id="edit-log-date" required placeholder="17-10-26">
+            </div>
+          </div>
+
+          <!-- Style Code & Category -->
+          <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+            <div class="form-group">
+              <label for="edit-log-style-code">Style Code *:</label>
+              <input type="text" class="app-input" id="edit-log-style-code" required placeholder="e.g. JLS26859" list="styles-master-datalist">
+            </div>
+            <div class="form-group">
+              <label for="edit-log-category">Category *:</label>
+              <select class="app-select" id="edit-log-category" required>
+                <option value="Shirt">Shirt</option>
+                <option value="Trouser">Trouser</option>
+                <option value="Dupatta">Dupatta</option>
+                <option value="Kurta">Kurta</option>
+                <option value="Sherwani">Sherwani</option>
+                <option value="Jacket">Jacket</option>
+                <option value="Kaftan">Kaftan</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Contractor -->
+          <div class="form-group" style="margin-bottom: 0.85rem;">
+            <label for="edit-log-contractor">Contractor Name *:</label>
+            <input type="text" class="app-input" id="edit-log-contractor" required placeholder="e.g. Touseef, Naveed" list="contractors-datalist">
+          </div>
+
+          <!-- Quantities (Dynamically adjusted based on type) -->
+          <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+            <div class="form-group" id="edit-group-cut-qty">
+              <label for="edit-log-cut-qty">Cut Order Quantity:</label>
+              <input type="number" class="app-input" id="edit-log-cut-qty" min="0" placeholder="e.g. 1187">
+            </div>
+            <div class="form-group">
+              <label id="edit-label-qty" for="edit-log-qty">Quantity *:</label>
+              <input type="number" class="app-input" id="edit-log-qty" min="1" required placeholder="Pieces in this challan">
+            </div>
+          </div>
+
+          <!-- Remarks / Status -->
+          <div class="form-group">
+            <label for="edit-log-remarks">Challan Remarks / Status:</label>
+            <input type="text" class="app-input" id="edit-log-remarks" placeholder="e.g. INLINE, ALTER, Completed, Issue">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-log-entry')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-edit-log">
+            ✓ Update Challan & Recalculate
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: USER ACCOUNTS & PERMISSIONS MANAGEMENT (ADMIN ONLY)     -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-user-management">
+    <div class="modal-card" style="max-width: 920px;">
+      <div class="modal-header">
+        <div>
+          <h2>👥 User Accounts & Access Control (RBAC)</h2>
+          <p style="font-size: 0.775rem; color: var(--text-muted); margin: 0;">Create and manage staff accounts, tab visibility, and edit/delete permissions</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-primary btn-sm" id="btn-create-new-user">
+            + Add New User
+          </button>
+          <button class="btn btn-secondary btn-icon" onclick="closeModal('modal-user-management')">✕</button>
+        </div>
+      </div>
+
+      <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+        <div class="table-container" style="max-height: 480px; overflow-y: auto;">
+          <table class="master-table" style="font-size: 0.825rem;">
+            <thead>
+              <tr>
+                <th style="width: 45px; text-align: center;">#</th>
+                <th>User / Designation</th>
+                <th style="width: 110px;">Role</th>
+                <th>Allowed Tabs</th>
+                <th>Action Rights</th>
+                <th style="width: 85px; text-align: center;">Status</th>
+                <th style="width: 140px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-users-list">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-user-management')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: CREATE / EDIT USER ACCOUNT & PERMISSIONS                -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-user-form" style="z-index: 220;">
+    <div class="modal-card" style="max-width: 640px;">
+      <div class="modal-header">
+        <div>
+          <h2 id="user-form-modal-title">Add New User Account</h2>
+          <p id="user-form-modal-subtitle" style="font-size: 0.775rem; color: var(--text-muted); margin: 0;">Set login credentials and customize access permissions</p>
+        </div>
+        <button class="btn btn-secondary btn-icon" onclick="closeModal('modal-user-form')">✕</button>
+      </div>
+
+      <form id="form-user-account">
+        <input type="hidden" id="user-form-id">
+
+        <div class="modal-body">
+          <!-- Inline Alert -->
+          <div id="modal-user-alert" style="display: none; padding: 0.65rem 0.85rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.825rem; font-weight: 600;"></div>
+
+          <!-- Basic Credentials -->
+          <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+            <div class="form-group">
+              <label for="user-form-username">Username *:</label>
+              <input type="text" class="app-input" id="user-form-username" required placeholder="e.g. touseef, operator1" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label for="user-form-fullname">Full Name / Designation *:</label>
+              <input type="text" class="app-input" id="user-form-fullname" required placeholder="e.g. Muhammad Touseef">
+            </div>
+          </div>
+
+          <div class="form-grid-2" style="margin-bottom: 1.15rem;">
+            <div class="form-group">
+              <label for="user-form-password">Password <span id="user-password-hint" style="font-size: 0.75rem; color: var(--text-muted);">(Leave blank to keep current)</span>:</label>
+              <input type="password" class="app-input" id="user-form-password" placeholder="Password for login">
+            </div>
+            <div class="form-group">
+              <label for="user-form-role">Role Preset:</label>
+              <select class="app-select" id="user-form-role">
+                <option value="admin">👑 Admin (Full Access to Everything)</option>
+                <option value="manager">💼 Manager (All Tabs, View & Edit)</option>
+                <option value="operator">📝 Data Entry Operator (Challans Only)</option>
+                <option value="viewer">👁️ Viewer (Read-Only, No Edit/Delete)</option>
+                <option value="custom">⚙️ Custom Granular Permissions</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="form-group" style="margin-bottom: 1.15rem;">
+            <label for="user-form-status">Account Status:</label>
+            <select class="app-select" id="user-form-status">
+              <option value="Active">Active (User can sign in)</option>
+              <option value="Disabled">Disabled (Access suspended)</option>
+            </select>
+          </div>
+
+          <!-- TAB PERMISSIONS -->
+          <div style="margin-bottom: 1.15rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em;">
+                📂 Visible Tabs (User kya kya deakh saky)
+              </span>
+              <div style="display: flex; gap: 0.35rem;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-select-all-tabs" style="padding: 2px 7px; font-size: 0.725rem;">All</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-deselect-all-tabs" style="padding: 2px 7px; font-size: 0.725rem;">None</button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-tab-master" checked>
+                <span>📦 Master Inventory</span>
+              </label>
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-tab-rec" checked>
+                <span>📥 Inward Receiving Log</span>
+              </label>
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-tab-dis" checked>
+                <span>📤 Outward Dispatch Log</span>
+              </label>
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-tab-final" checked>
+                <span>⭐ Daily Sheet (Report)</span>
+              </label>
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-tab-cont" checked>
+                <span>👥 Contractors Master</span>
+              </label>
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-tab-neon">
+                <span>☁️ Neon Cloud & Settings</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ACTION RIGHTS (Create, Edit, Delete) -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+              ⚡ Action Rights (Create, Edit, Delete Permissions)
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.65rem;">
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-action-create" checked>
+                <span>➕ Allow Add / Create</span>
+              </label>
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-action-edit" checked>
+                <span>✏️ Allow Edit</span>
+              </label>
+              <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-action-delete">
+                <span>✕ Allow Delete</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-user-form')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-user-account">
+            ✓ Save User Account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
