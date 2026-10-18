@@ -16,8 +16,10 @@ function initApp() {
   initDispatchLogView();
   initFinalStyleView();
   initContractorsView();
+  initPaymentSheetView();
   initNeonSyncView();
   initModalHandlers();
+  initPaymentModalHandlers();
   initUserManagementHandlers();
   initAuthSystem();
 
@@ -142,6 +144,7 @@ function switchTab(tabId) {
   if (tabId === "dispatch-log") renderDispatchLog();
   if (tabId === "final-style") renderFinalStyleSheet();
   if (tabId === "contractors") renderContractorsView();
+  if (tabId === "payment-sheet") renderPaymentSheet();
 }
 
 // -------------------------------------------------------------
@@ -154,6 +157,7 @@ function renderAll() {
   renderDispatchLog();
   renderFinalStyleSheet();
   renderContractorsView();
+  renderPaymentSheet();
   populateDropdowns();
 }
 
@@ -197,6 +201,9 @@ function renderKPIs() {
 
   const badgeFinal = document.getElementById("badge-final-count");
   if (badgeFinal) badgeFinal.textContent = window.db.getFinalStyles().length;
+
+  const badgePayment = document.getElementById("badge-payment-count");
+  if (badgePayment) badgePayment.textContent = window.db.getPaymentSheets().length;
 }
 
 // -------------------------------------------------------------
@@ -1325,18 +1332,19 @@ function initModalHandlers() {
 }
 
 function setFormMode(mode) {
+  const targetMode = (mode === "dispatch") ? "dispatch" : "receiving";
   document.querySelectorAll(".form-toggle-tab").forEach(tab => {
-    tab.classList.toggle("active", tab.getAttribute("data-mode") === mode);
+    tab.classList.toggle("active", tab.getAttribute("data-mode") === targetMode);
   });
 
   const hiddenMode = document.getElementById("current-form-mode");
-  if (hiddenMode) hiddenMode.value = mode;
+  if (hiddenMode) hiddenMode.value = targetMode;
 
   const recSection = document.getElementById("form-section-receiving");
   const disSection = document.getElementById("form-section-dispatch");
   const saveBtn = document.getElementById("btn-save-master-entry");
 
-  if (mode === "receiving") {
+  if (targetMode === "receiving") {
     if (recSection) recSection.style.display = "block";
     if (disSection) disSection.style.display = "none";
     if (saveBtn) {
@@ -1345,23 +1353,13 @@ function setFormMode(mode) {
         Save Receiving Challan & Next
       `;
     }
-  } else if (mode === "dispatch") {
+  } else {
     if (recSection) recSection.style.display = "none";
     if (disSection) disSection.style.display = "block";
     if (saveBtn) {
       saveBtn.innerHTML = `
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
         Save Dispatch Challan & Next
-      `;
-    }
-  } else {
-    // Both / Master
-    if (recSection) recSection.style.display = "block";
-    if (disSection) disSection.style.display = "block";
-    if (saveBtn) {
-      saveBtn.innerHTML = `
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        Save Master Entry & Next
       `;
     }
   }
@@ -1589,7 +1587,7 @@ function openMasterEntryModal(itemToEdit = null, preferredMode = "receiving") {
     document.getElementById("entry-date-dispatch").value = itemToEdit.date_dispatch || "";
     document.getElementById("entry-challan-dis").value = itemToEdit.challan_dis || "";
     document.getElementById("entry-remarks").value = itemToEdit.remarks || "";
-    setFormMode("both");
+    setFormMode(preferredMode === "dispatch" ? "dispatch" : "receiving");
   } else {
     title.textContent = "Style Production & Balance Entry";
     idInput.value = "";
@@ -1598,7 +1596,7 @@ function openMasterEntryModal(itemToEdit = null, preferredMode = "receiving") {
     document.getElementById("entry-sr").value = maxSr + 1;
     document.getElementById("entry-date-receive").value = getCurrentDateShort();
     document.getElementById("entry-date-dispatch").value = getCurrentDateShort();
-    setFormMode(preferredMode);
+    setFormMode(preferredMode === "dispatch" ? "dispatch" : "receiving");
   }
 
   const alertBox = document.getElementById("modal-form-alert");
@@ -1887,7 +1885,7 @@ function editMasterEntry(id) {
   }
   const item = window.db.getMasterInventory().find(i => i.id === id);
   if (item) {
-    openMasterEntryModal(item, "both");
+    openMasterEntryModal(item, "receiving");
   }
 }
 
@@ -2436,6 +2434,137 @@ function escapeHtml(str) {
 // AUTHENTICATION & ROLE-BASED ACCESS CONTROL (RBAC) CONTROLLERS
 // ====================================================================
 
+// -------------------------------------------------------------
+// 5-MINUTE AUTO LOGOUT INACTIVITY SYSTEM
+// -------------------------------------------------------------
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes (300,000 ms)
+let inactivityTimer = null;
+let lastUserActivity = Date.now();
+let activityListenersAttached = false;
+
+function recordUserActivity() {
+  const now = Date.now();
+  if (now - lastUserActivity < 1000) return; // throttle 1s
+  lastUserActivity = now;
+  try {
+    localStorage.setItem("craftflow_last_activity", String(now));
+  } catch (e) {}
+  resetInactivityTimer();
+}
+
+function resetInactivityTimer() {
+  if (inactivityTimer) {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = null;
+  }
+
+  // Only track when user is logged in
+  if (!window.db || !window.db.getCurrentUser()) return;
+
+  inactivityTimer = setTimeout(() => {
+    checkAndTriggerInactivityLogout();
+  }, INACTIVITY_TIMEOUT_MS);
+}
+
+function checkAndTriggerInactivityLogout() {
+  if (!window.db || !window.db.getCurrentUser()) return;
+
+  let storedActivity = lastUserActivity;
+  try {
+    const s = parseInt(localStorage.getItem("craftflow_last_activity"), 10);
+    if (s && !isNaN(s)) storedActivity = Math.max(storedActivity, s);
+  } catch (e) {}
+
+  const elapsed = Date.now() - storedActivity;
+  if (elapsed >= INACTIVITY_TIMEOUT_MS) {
+    performInactivityAutoLogout();
+  } else {
+    // Re-arm timer for remaining time
+    const remaining = Math.max(1000, INACTIVITY_TIMEOUT_MS - elapsed);
+    inactivityTimer = setTimeout(checkAndTriggerInactivityLogout, remaining);
+  }
+}
+
+function performInactivityAutoLogout() {
+  if (!window.db || !window.db.getCurrentUser()) return;
+
+  stopInactivityTimer();
+
+  // Close all open modals
+  document.querySelectorAll(".modal-backdrop.open").forEach(m => m.classList.remove("open"));
+
+  // Log user out from database / local storage session
+  window.db.logoutUser();
+
+  // Show login screen overlay
+  const overlay = document.getElementById("auth-screen-overlay");
+  if (overlay) overlay.style.display = "flex";
+
+  const passInput = document.getElementById("login-password");
+  if (passInput) {
+    passInput.value = "";
+    passInput.setAttribute("type", "password");
+  }
+
+  const togglePassBtn = document.getElementById("btn-toggle-login-pass");
+  if (togglePassBtn) {
+    const eyeOpen = togglePassBtn.querySelector(".eye-open");
+    const eyeClosed = togglePassBtn.querySelector(".eye-closed");
+    if (eyeOpen) eyeOpen.style.display = "block";
+    if (eyeClosed) eyeClosed.style.display = "none";
+  }
+
+  // Display timeout warning on the login screen
+  const errorAlert = document.getElementById("auth-error-alert");
+  if (errorAlert) {
+    errorAlert.style.display = "block";
+    errorAlert.style.background = "rgba(245, 158, 11, 0.15)";
+    errorAlert.style.border = "1.5px solid #f59e0b";
+    errorAlert.style.color = "#fbbf24";
+    errorAlert.innerHTML = `⏱️ <strong>Session Expired (Auto-Logout)</strong><br><span style="font-size: 0.8rem; opacity: 0.9;">5 minute tak koi activity na honay ki wajah say software automatically logout ho gaya hai. Dobara login karein.</span>`;
+  }
+
+  const userInput = document.getElementById("login-username");
+  if (userInput) userInput.focus();
+
+  showToast("⏱️ Inactivity Timeout: 5 minutes idle — logged out automatically.", "warning");
+}
+
+function initInactivityTimer() {
+  lastUserActivity = Date.now();
+  try {
+    localStorage.setItem("craftflow_last_activity", String(lastUserActivity));
+  } catch (e) {}
+
+  if (!activityListenersAttached) {
+    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"];
+    events.forEach(evt => {
+      window.addEventListener(evt, recordUserActivity, { passive: true });
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        checkAndTriggerInactivityLogout();
+      }
+    });
+
+    window.addEventListener("focus", () => {
+      checkAndTriggerInactivityLogout();
+    });
+
+    activityListenersAttached = true;
+  }
+
+  resetInactivityTimer();
+}
+
+function stopInactivityTimer() {
+  if (inactivityTimer) {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = null;
+  }
+}
+
 function initAuthSystem() {
   const overlay = document.getElementById("auth-screen-overlay");
   const loginForm = document.getElementById("form-login");
@@ -2449,7 +2578,16 @@ function initAuthSystem() {
     togglePassBtn.addEventListener("click", () => {
       const isPass = passInput.getAttribute("type") === "password";
       passInput.setAttribute("type", isPass ? "text" : "password");
-      togglePassBtn.textContent = isPass ? "Hide" : "Show";
+      const eyeOpen = togglePassBtn.querySelector(".eye-open");
+      const eyeClosed = togglePassBtn.querySelector(".eye-closed");
+      if (eyeOpen && eyeClosed) {
+        eyeOpen.style.display = isPass ? "none" : "block";
+        eyeClosed.style.display = isPass ? "block" : "none";
+      } else {
+        togglePassBtn.textContent = isPass ? "Hide" : "Show";
+      }
+      togglePassBtn.setAttribute("title", isPass ? "Hide password" : "Show password");
+      togglePassBtn.setAttribute("aria-label", isPass ? "Hide password" : "Show password");
     });
   }
 
@@ -2459,6 +2597,7 @@ function initAuthSystem() {
     if (overlay) overlay.style.display = "none";
     updateHeaderUserProfile(currentUser);
     applyUserPermissions(currentUser);
+    initInactivityTimer(); // Start 5-minute inactivity tracker
   } else {
     if (overlay) overlay.style.display = "flex";
   }
@@ -2499,12 +2638,22 @@ function initAuthSystem() {
 
       if (result.success) {
         if (overlay) overlay.style.display = "none";
-        if (passInput) passInput.value = "";
+        if (passInput) {
+          passInput.value = "";
+          passInput.setAttribute("type", "password");
+          const eyeOpen = togglePassBtn ? togglePassBtn.querySelector(".eye-open") : null;
+          const eyeClosed = togglePassBtn ? togglePassBtn.querySelector(".eye-closed") : null;
+          if (eyeOpen && eyeClosed) {
+            eyeOpen.style.display = "block";
+            eyeClosed.style.display = "none";
+          }
+        }
         updateHeaderUserProfile(result.user);
         applyUserPermissions(result.user);
         renderAll();
         checkNeonStatus();
         startLiveNeonConnection();
+        initInactivityTimer(); // Start 5-minute inactivity tracker on login
         showToast(`Welcome back, ${result.user.full_name || result.user.username}!`, "success");
       } else {
         if (errorAlert) {
@@ -2523,9 +2672,23 @@ function initAuthSystem() {
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       if (confirm("Are you sure you want to sign out of CraftFlow?")) {
+        stopInactivityTimer();
         window.db.logoutUser();
         if (overlay) overlay.style.display = "flex";
-        if (passInput) passInput.value = "";
+        if (passInput) {
+          passInput.value = "";
+          passInput.setAttribute("type", "password");
+          const eyeOpen = togglePassBtn ? togglePassBtn.querySelector(".eye-open") : null;
+          const eyeClosed = togglePassBtn ? togglePassBtn.querySelector(".eye-closed") : null;
+          if (eyeOpen && eyeClosed) {
+            eyeOpen.style.display = "block";
+            eyeClosed.style.display = "none";
+          }
+          if (togglePassBtn) {
+            togglePassBtn.setAttribute("title", "Show password");
+            togglePassBtn.setAttribute("aria-label", "Show password");
+          }
+        }
         if (errorAlert) errorAlert.style.display = "none";
         const userInput = document.getElementById("login-username");
         if (userInput) userInput.focus();
@@ -2602,7 +2765,8 @@ function applyUserPermissions(user) {
     "btn-open-dis-modal",
     "btn-open-new-contractor",
     "btn-add-final-style",
-    "btn-auto-populate-active"
+    "btn-auto-populate-active",
+    "btn-open-payment-modal"
   ];
   createBtnIds.forEach(id => {
     const el = document.getElementById(id);
@@ -2688,10 +2852,11 @@ function renderUsersTable() {
     if (tabs.dispatch_log) allowedTabNames.push("Dispatch");
     if (tabs.final_style) allowedTabNames.push("Daily Sheet");
     if (tabs.contractors) allowedTabNames.push("Contractors");
+    if (tabs.payment_sheet || (u.role === "admin")) allowedTabNames.push("Payment");
     if (tabs.neon_sync) allowedTabNames.push("Neon");
 
     const tabsHtml = u.role === "admin" 
-      ? `<span class="badge-tag inline" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">All Tabs (6/6)</span>`
+      ? `<span class="badge-tag inline" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">All Tabs (7/7)</span>`
       : allowedTabNames.length > 0 
         ? `<div style="display: flex; flex-wrap: wrap; gap: 3px;">${allowedTabNames.map(t => `<span class="badge-tag" style="font-size: 0.675rem; padding: 1px 6px;">${t}</span>`).join("")}</div>`
         : `<span style="color: var(--text-faint); font-size: 0.75rem;">None</span>`;
@@ -2804,6 +2969,7 @@ function openUserFormModal(userId = null) {
     checkEl("perm-tab-dis", tabs.dispatch_log);
     checkEl("perm-tab-final", tabs.final_style);
     checkEl("perm-tab-cont", tabs.contractors);
+    checkEl("perm-tab-payment", tabs.payment_sheet !== undefined ? tabs.payment_sheet : true);
     checkEl("perm-tab-neon", tabs.neon_sync);
 
     const actions = user.permissions?.actions || {};
@@ -2858,6 +3024,7 @@ function applyRolePreset(role) {
     checkEl("perm-tab-dis", true);
     checkEl("perm-tab-final", true);
     checkEl("perm-tab-cont", true);
+    checkEl("perm-tab-payment", true);
     checkEl("perm-tab-neon", false);
     checkEl("perm-action-create", true);
     checkEl("perm-action-edit", true);
@@ -2868,6 +3035,7 @@ function applyRolePreset(role) {
     checkEl("perm-tab-dis", true);
     checkEl("perm-tab-final", false);
     checkEl("perm-tab-cont", false);
+    checkEl("perm-tab-payment", true);
     checkEl("perm-tab-neon", false);
     checkEl("perm-action-create", true);
     checkEl("perm-action-edit", false);
@@ -2878,6 +3046,7 @@ function applyRolePreset(role) {
     checkEl("perm-tab-dis", true);
     checkEl("perm-tab-final", true);
     checkEl("perm-tab-cont", true);
+    checkEl("perm-tab-payment", true);
     checkEl("perm-tab-neon", false);
     checkEl("perm-action-create", false);
     checkEl("perm-action-edit", false);
@@ -2886,7 +3055,7 @@ function applyRolePreset(role) {
 }
 
 function setAllTabCheckboxes(val) {
-  const ids = ["perm-tab-master", "perm-tab-rec", "perm-tab-dis", "perm-tab-final", "perm-tab-cont", "perm-tab-neon"];
+  const ids = ["perm-tab-master", "perm-tab-rec", "perm-tab-dis", "perm-tab-final", "perm-tab-cont", "perm-tab-payment", "perm-tab-neon"];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.checked = val;
@@ -2942,6 +3111,7 @@ async function saveUserAccountFromForm() {
       dispatch_log: isChecked("perm-tab-dis"),
       final_style: isChecked("perm-tab-final"),
       contractors: isChecked("perm-tab-cont"),
+      payment_sheet: isChecked("perm-tab-payment"),
       neon_sync: isChecked("perm-tab-neon")
     },
     actions: {

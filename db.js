@@ -12,7 +12,8 @@ const DB_KEYS = {
   CONFIG: "hand_emb_config_v2",
   REPORT_DATE: "hand_emb_report_date_v2",
   USERS: "hand_emb_users_v2",
-  CURRENT_USER: "hand_emb_current_user_v2"
+  CURRENT_USER: "hand_emb_current_user_v2",
+  PAYMENT_SHEET: "hand_emb_payment_sheet_v2"
 };
 
 class DatabaseService {
@@ -50,6 +51,9 @@ class DatabaseService {
     if (!localStorage.getItem(DB_KEYS.FINAL_STYLES)) {
       localStorage.setItem(DB_KEYS.FINAL_STYLES, JSON.stringify([]));
     }
+    if (!localStorage.getItem(DB_KEYS.PAYMENT_SHEET)) {
+      localStorage.setItem(DB_KEYS.PAYMENT_SHEET, JSON.stringify([]));
+    }
     if (!localStorage.getItem(DB_KEYS.REPORT_DATE)) {
       const today = new Date().toISOString().split("T")[0];
       localStorage.setItem(DB_KEYS.REPORT_DATE, today);
@@ -79,7 +83,8 @@ class DatabaseService {
             dispatch_log: true,
             final_style: true,
             contractors: true,
-            neon_sync: true
+            neon_sync: true,
+            payment_sheet: true
           },
           actions: {
             can_create: true,
@@ -99,12 +104,13 @@ class DatabaseService {
     localStorage.setItem(DB_KEYS.RECEIVING_LOG, JSON.stringify([]));
     localStorage.setItem(DB_KEYS.DISPATCH_LOG, JSON.stringify([]));
     localStorage.setItem(DB_KEYS.FINAL_STYLES, JSON.stringify([]));
+    localStorage.setItem(DB_KEYS.PAYMENT_SHEET, JSON.stringify([]));
 
     if (clearNeon) {
       const cfg = this.getConfig();
       if (cfg.neonConnectionString || cfg.neonEndpointUrl) {
         try {
-          await this.executeNeonQuery("TRUNCATE TABLE receiving_log, dispatch_log, master_inventory, final_style_report;");
+          await this.executeNeonQuery("TRUNCATE TABLE receiving_log, dispatch_log, master_inventory, final_style_report, payment_sheet;");
         } catch (err) {
           console.warn("Neon truncate error:", err);
         }
@@ -1014,6 +1020,248 @@ class DatabaseService {
   }
 
   // -------------------------------------------------------------
+  // PAYMENT & DEDUCTION SHEET (Style Photos, Cutoff Deductions, Dorie & Floor Challans)
+  // -------------------------------------------------------------
+  computePaymentBalances(item) {
+    const totalPcs = parseInt(item.total_pcs, 10) || 0;
+    const rate = parseFloat(item.rate_per_pc) || 0;
+    const totalAmount = totalPcs * rate;
+    const deliveredInTime = parseInt(item.delivered_in_time_pcs, 10) || 0;
+    const deductedPcs = parseInt(item.deducted_pcs, 10) || 0;
+    const deductionAmount = parseFloat(item.deduction_amount) || (deductedPcs * rate);
+    const paidPcs = parseInt(item.paid_pcs, 10) || 0;
+    const paidAmount = parseFloat(item.paid_amount) || 0;
+
+    // Remaining pieces after payment and deductions
+    const balancePcs = Math.max(0, totalPcs - paidPcs - deductedPcs);
+    const balanceAmount = balancePcs * rate;
+
+    let status = item.status;
+    if (!status || status === "Pending" || status === "Partial" || status === "Fully Paid" || status === "Deduction Settled") {
+      if (balancePcs === 0 && (paidPcs > 0 || totalPcs > 0)) {
+        status = "Fully Paid";
+      } else if (paidPcs > 0 && balancePcs > 0) {
+        status = "Partial";
+      } else if (deductedPcs === totalPcs && totalPcs > 0) {
+        status = "Deduction Settled";
+      } else {
+        status = "Pending";
+      }
+    }
+
+    return {
+      total_pcs: totalPcs,
+      rate_per_pc: rate,
+      total_amount: totalAmount,
+      delivered_in_time_pcs: deliveredInTime,
+      deducted_pcs: deductedPcs,
+      deduction_amount: deductionAmount,
+      paid_pcs: paidPcs,
+      paid_amount: paidAmount,
+      balance_pcs: balancePcs,
+      balance_amount: balanceAmount,
+      status: status
+    };
+  }
+
+  getPaymentSheets() {
+    const data = JSON.parse(localStorage.getItem(DB_KEYS.PAYMENT_SHEET) || "[]");
+    return data.map(item => ({
+      ...item,
+      ...this.computePaymentBalances(item),
+      payment_history: Array.isArray(item.payment_history) ? item.payment_history : []
+    }));
+  }
+
+  savePaymentSheets(list) {
+    localStorage.setItem(DB_KEYS.PAYMENT_SHEET, JSON.stringify(list));
+    this.triggerAutoSyncIfEnabled();
+  }
+
+  getPaymentSheetById(id) {
+    return this.getPaymentSheets().find(p => p.id === id) || null;
+  }
+
+  async addPaymentSheet(item) {
+    const list = this.getPaymentSheets();
+    const newId = list.length > 0 ? Math.max(...list.map(i => i.id || 0)) + 1 : 1;
+    const maxSr = list.length > 0 ? Math.max(...list.map(i => parseInt(i.sr_no, 10) || 0)) : 0;
+
+    const computed = this.computePaymentBalances(item);
+
+    const record = {
+      id: newId,
+      sr_no: item.sr_no ? parseInt(item.sr_no, 10) : maxSr + 1,
+      style_code: (item.style_code || "").trim(),
+      category: (item.category || "Shirt").trim(),
+      ship: (item.ship || "").trim(),
+      contractor_name: (item.contractor_name || "").trim(),
+      payment_channel: item.payment_channel || "stock_direct", // 'dorie', 'floor_transfer', 'stock_direct'
+      target_floor: (item.target_floor || "").trim(),
+      floor_challan_no: (item.floor_challan_no || "").trim(),
+      floor_received_by: (item.floor_received_by || "").trim(),
+      submission_date: item.submission_date || "",
+      cutoff_date: item.cutoff_date || "",
+      image_data: item.image_data || "",
+      remarks: item.remarks || "",
+      payment_history: Array.isArray(item.payment_history) ? item.payment_history : [],
+      created_at: new Date().toISOString(),
+      ...computed
+    };
+
+    list.unshift(record);
+    this.savePaymentSheets(list);
+
+    if (record.contractor_name) {
+      this.ensureContractorExists(record.contractor_name);
+    }
+
+    // Sync to Neon if configured
+    const cfg = this.getConfig();
+    if (cfg.neonConnectionString || cfg.neonEndpointUrl) {
+      try {
+        await this.syncPaymentSheetToNeon(record);
+      } catch (err) {
+        console.warn("Neon payment_sheet push error:", err);
+      }
+    }
+
+    return record;
+  }
+
+  async updatePaymentSheet(id, updatedFields) {
+    const list = this.getPaymentSheets();
+    const index = list.findIndex(i => i.id === id);
+    if (index === -1) return null;
+
+    const merged = {
+      ...list[index],
+      ...updatedFields,
+      id: id
+    };
+
+    const computed = this.computePaymentBalances(merged);
+    list[index] = {
+      ...merged,
+      ...computed,
+      updated_at: new Date().toISOString()
+    };
+
+    if (list[index].contractor_name) {
+      this.ensureContractorExists(list[index].contractor_name);
+    }
+
+    this.savePaymentSheets(list);
+
+    // Sync to Neon if configured
+    const cfg = this.getConfig();
+    if (cfg.neonConnectionString || cfg.neonEndpointUrl) {
+      try {
+        await this.syncPaymentSheetToNeon(list[index]);
+      } catch (err) {
+        console.warn("Neon payment_sheet update error:", err);
+      }
+    }
+
+    return list[index];
+  }
+
+  async deletePaymentSheet(id) {
+    let list = this.getPaymentSheets();
+    list = list.filter(i => i.id !== id);
+    localStorage.setItem(DB_KEYS.PAYMENT_SHEET, JSON.stringify(list));
+
+    const cfg = this.getConfig();
+    if (cfg.neonConnectionString || cfg.neonEndpointUrl) {
+      try {
+        await this.executeNeonQuery("DELETE FROM payment_sheet WHERE id = $1;", [id]);
+      } catch (err) {
+        console.warn("Neon delete payment_sheet error:", err);
+      }
+    }
+    return true;
+  }
+
+  async recordPaymentReceipt(paymentId, receipt) {
+    const payment = this.getPaymentSheetById(paymentId);
+    if (!payment) throw new Error("Payment record not found.");
+
+    const amount = parseFloat(receipt.amount) || 0;
+    const rate = payment.rate_per_pc || 1;
+    const pcsCovered = receipt.pcs_covered !== undefined ? parseInt(receipt.pcs_covered, 10) : (rate > 0 ? Math.round(amount / rate) : 0);
+
+    const history = Array.isArray(payment.payment_history) ? [...payment.payment_history] : [];
+    history.push({
+      id: Date.now(),
+      date: receipt.date || new Date().toISOString().split("T")[0],
+      amount: amount,
+      pcs_covered: pcsCovered,
+      receipt_no: (receipt.receipt_no || "").trim(),
+      payment_mode: receipt.payment_mode || "Cash",
+      notes: (receipt.notes || "").trim()
+    });
+
+    const newPaidAmount = (payment.paid_amount || 0) + amount;
+    const newPaidPcs = (payment.paid_pcs || 0) + pcsCovered;
+
+    return await this.updatePaymentSheet(paymentId, {
+      paid_amount: newPaidAmount,
+      paid_pcs: newPaidPcs,
+      payment_history: history
+    });
+  }
+
+  async syncPaymentSheetToNeon(p) {
+    if (!p) return;
+    await this.executeNeonQuery(
+      `INSERT INTO payment_sheet (
+        id, sr_no, style_code, category, ship, contractor_name, payment_channel,
+        target_floor, floor_challan_no, floor_received_by, submission_date, cutoff_date,
+        total_pcs, rate_per_pc, total_amount, delivered_in_time_pcs, deducted_pcs,
+        deduction_amount, paid_pcs, paid_amount, balance_pcs, balance_amount, status,
+        image_data, payment_history, remarks
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26
+      ) ON CONFLICT (id) DO UPDATE SET
+        sr_no = EXCLUDED.sr_no,
+        style_code = EXCLUDED.style_code,
+        category = EXCLUDED.category,
+        ship = EXCLUDED.ship,
+        contractor_name = EXCLUDED.contractor_name,
+        payment_channel = EXCLUDED.payment_channel,
+        target_floor = EXCLUDED.target_floor,
+        floor_challan_no = EXCLUDED.floor_challan_no,
+        floor_received_by = EXCLUDED.floor_received_by,
+        submission_date = EXCLUDED.submission_date,
+        cutoff_date = EXCLUDED.cutoff_date,
+        total_pcs = EXCLUDED.total_pcs,
+        rate_per_pc = EXCLUDED.rate_per_pc,
+        total_amount = EXCLUDED.total_amount,
+        delivered_in_time_pcs = EXCLUDED.delivered_in_time_pcs,
+        deducted_pcs = EXCLUDED.deducted_pcs,
+        deduction_amount = EXCLUDED.deduction_amount,
+        paid_pcs = EXCLUDED.paid_pcs,
+        paid_amount = EXCLUDED.paid_amount,
+        balance_pcs = EXCLUDED.balance_pcs,
+        balance_amount = EXCLUDED.balance_amount,
+        status = EXCLUDED.status,
+        image_data = EXCLUDED.image_data,
+        payment_history = EXCLUDED.payment_history,
+        remarks = EXCLUDED.remarks,
+        updated_at = CURRENT_TIMESTAMP;`,
+      [
+        p.id, p.sr_no || 0, p.style_code, p.category, p.ship || '', p.contractor_name || '',
+        p.payment_channel || 'stock_direct', p.target_floor || '', p.floor_challan_no || '',
+        p.floor_received_by || '', p.submission_date || '', p.cutoff_date || '',
+        p.total_pcs || 0, p.rate_per_pc || 0, p.total_amount || 0, p.delivered_in_time_pcs || 0,
+        p.deducted_pcs || 0, p.deduction_amount || 0, p.paid_pcs || 0, p.paid_amount || 0,
+        p.balance_pcs || 0, p.balance_amount || 0, p.status || 'Pending',
+        p.image_data || '', JSON.stringify(p.payment_history || []), p.remarks || ''
+      ]
+    );
+  }
+
+  // -------------------------------------------------------------
   // USER AUTHENTICATION & ACCESS CONTROL (RBAC)
   // -------------------------------------------------------------
   getUsers() {
@@ -1235,6 +1483,9 @@ class DatabaseService {
     if (!cur) return false;
     if (cur.role === "admin") return true;
     if (!cur.permissions || !cur.permissions.tabs) return false;
+    if (tabKey === "payment_sheet" && cur.permissions.tabs.payment_sheet === undefined) {
+      return cur.role === "manager" || cur.role === "operator" || cur.role === "admin";
+    }
     return !!cur.permissions.tabs[tabKey];
   }
 
@@ -1446,6 +1697,37 @@ class DatabaseService {
         permissions JSONB,
         status VARCHAR(20) DEFAULT 'Active',
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );`,
+
+      `CREATE TABLE IF NOT EXISTS payment_sheet (
+        id SERIAL PRIMARY KEY,
+        sr_no INT,
+        style_code VARCHAR(100) NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        ship VARCHAR(50) DEFAULT '',
+        contractor_name VARCHAR(100),
+        payment_channel VARCHAR(50) DEFAULT 'stock_direct',
+        target_floor VARCHAR(100) DEFAULT '',
+        floor_challan_no VARCHAR(100) DEFAULT '',
+        floor_received_by VARCHAR(100) DEFAULT '',
+        submission_date VARCHAR(100) DEFAULT '',
+        cutoff_date VARCHAR(100) DEFAULT '',
+        total_pcs INT NOT NULL DEFAULT 0,
+        rate_per_pc NUMERIC(10,2) NOT NULL DEFAULT 0,
+        total_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+        delivered_in_time_pcs INT NOT NULL DEFAULT 0,
+        deducted_pcs INT NOT NULL DEFAULT 0,
+        deduction_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+        paid_pcs INT NOT NULL DEFAULT 0,
+        paid_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+        balance_pcs INT NOT NULL DEFAULT 0,
+        balance_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+        status VARCHAR(50) DEFAULT 'Pending',
+        image_data TEXT,
+        payment_history JSONB DEFAULT '[]',
+        remarks TEXT,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );`
     ];
 
@@ -1462,6 +1744,7 @@ class DatabaseService {
     const receivingLogs = this.getReceivingLogs();
     const dispatchLogs = this.getDispatchLogs();
     const users = this.getUsers();
+    const paymentSheets = this.getPaymentSheets();
 
     try {
       await this.initNeonTables();
@@ -1545,13 +1828,18 @@ class DatabaseService {
         );
       }
 
+      // 6. Sync Payment Sheets
+      for (const p of paymentSheets) {
+        await this.syncPaymentSheetToNeon(p);
+      }
+
       const cfg = this.getConfig();
       cfg.lastSyncTime = new Date().toISOString();
       this.saveConfig(cfg);
 
       return {
         success: true,
-        message: `Successfully synchronized ${master.length} styles, ${receivingLogs.length} receiving challans, ${dispatchLogs.length} dispatch challans, and ${users.length} users to Neon PostgreSQL!`
+        message: `Successfully synchronized ${master.length} styles, ${receivingLogs.length} receiving challans, ${dispatchLogs.length} dispatch challans, ${paymentSheets.length} payment records, and ${users.length} users to Neon PostgreSQL!`
       };
     } catch (err) {
       return { success: false, error: err.message };
@@ -1565,18 +1853,28 @@ class DatabaseService {
       const recRes = await this.executeNeonQuery("SELECT * FROM receiving_log ORDER BY id DESC;");
       const disRes = await this.executeNeonQuery("SELECT * FROM dispatch_log ORDER BY id DESC;");
       const userRes = await this.executeNeonQuery("SELECT * FROM app_users ORDER BY id ASC;").catch(() => null);
+      const payRes = await this.executeNeonQuery("SELECT * FROM payment_sheet ORDER BY id DESC;").catch(() => null);
 
       const masterRows = masterRes?.rows || (Array.isArray(masterRes) ? masterRes : []);
       const contRows = contRes?.rows || (Array.isArray(contRes) ? contRes : []);
       const recRows = recRes?.rows || (Array.isArray(recRes) ? recRes : []);
       const disRows = disRes?.rows || (Array.isArray(disRes) ? disRes : []);
       const userRows = userRes?.rows || (Array.isArray(userRes) ? userRes : []);
+      const payRows = payRes?.rows || (Array.isArray(payRes) ? payRes : []);
 
       // Directly update localStorage with cloud truth WITHOUT triggering reverse push!
       localStorage.setItem(DB_KEYS.CONTRACTORS, JSON.stringify(contRows));
       localStorage.setItem(DB_KEYS.RECEIVING_LOG, JSON.stringify(recRows));
       localStorage.setItem(DB_KEYS.DISPATCH_LOG, JSON.stringify(disRows));
       localStorage.setItem(DB_KEYS.MASTER_INVENTORY, JSON.stringify(masterRows));
+
+      if (payRows.length > 0) {
+        const parsedPay = payRows.map(p => ({
+          ...p,
+          payment_history: typeof p.payment_history === "string" ? JSON.parse(p.payment_history) : (p.payment_history || [])
+        }));
+        localStorage.setItem(DB_KEYS.PAYMENT_SHEET, JSON.stringify(parsedPay));
+      }
 
       if (userRows.length > 0) {
         const parsedUsers = userRows.map(u => ({
@@ -1602,6 +1900,7 @@ class DatabaseService {
         count: this.getMasterInventory().length,
         recCount: recRows.length,
         disCount: disRows.length,
+        paymentCount: payRows.length,
         userCount: userRows.length
       };
     } catch (err) {

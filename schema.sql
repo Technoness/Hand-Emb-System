@@ -102,9 +102,44 @@ CREATE TABLE IF NOT EXISTS app_users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indexes for ultra fast lookup by Style Code + Category & Users
+-- 7. Payment & Deduction Sheet (Style Images, Cutoff Deductions, Dorie & Floor Challans)
+CREATE TABLE IF NOT EXISTS payment_sheet (
+    id SERIAL PRIMARY KEY,
+    sr_no INT,
+    style_code VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    ship VARCHAR(50) DEFAULT '',
+    contractor_name VARCHAR(100),
+    payment_channel VARCHAR(50) DEFAULT 'stock_direct', -- 'dorie', 'floor_transfer', 'stock_direct'
+    target_floor VARCHAR(100) DEFAULT '',
+    floor_challan_no VARCHAR(100) DEFAULT '',
+    floor_received_by VARCHAR(100) DEFAULT '',
+    submission_date VARCHAR(100) DEFAULT '',
+    cutoff_date VARCHAR(100) DEFAULT '',
+    total_pcs INT NOT NULL DEFAULT 0,
+    rate_per_pc NUMERIC(10,2) NOT NULL DEFAULT 0,
+    total_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+    delivered_in_time_pcs INT NOT NULL DEFAULT 0,
+    deducted_pcs INT NOT NULL DEFAULT 0,
+    deduction_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+    paid_pcs INT NOT NULL DEFAULT 0,
+    paid_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+    balance_pcs INT NOT NULL DEFAULT 0,
+    balance_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'Pending',
+    image_data TEXT,
+    payment_history JSONB DEFAULT '[]',
+    remarks TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for ultra fast lookup by Style Code + Category, Users & Payment
 CREATE INDEX IF NOT EXISTS idx_master_style_cat ON master_inventory(style_code, category);
 CREATE INDEX IF NOT EXISTS idx_rec_style_cat ON receiving_log(style_code, category);
 CREATE INDEX IF NOT EXISTS idx_dis_style_cat ON dispatch_log(style_code, category);
 CREATE INDEX IF NOT EXISTS idx_master_cont ON master_inventory(contractor_name);
 CREATE INDEX IF NOT EXISTS idx_users_username ON app_users(username);
+CREATE INDEX IF NOT EXISTS idx_payment_style_cat ON payment_sheet(style_code, category);
+CREATE INDEX IF NOT EXISTS idx_payment_channel ON payment_sheet(payment_channel);
+

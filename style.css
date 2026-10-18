@@ -262,9 +262,6 @@ body {
 
 /* Row 2: Navigation Tabs Bar */
 .header-nav-row {
-  display: flex;
-  align-items: center;
-  padding: 0.25rem 1.25rem 0.55rem 1.25rem;
   width: 100%;
   box-sizing: border-box;
   border-top: 1px solid var(--border-color);
@@ -277,28 +274,42 @@ body {
   display: none;
 }
 
+.header-nav-container {
+  max-width: 1720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.35rem 1.5rem 0.55rem 1.5rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .nav-tabs {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  justify-content: center;
+  gap: 0.45rem;
   background: var(--bg-card);
-  padding: 0.25rem 0.35rem;
+  padding: 0.28rem 0.45rem;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border-color);
   flex-shrink: 0;
-  transition: border-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .nav-tabs:hover {
   border-color: var(--border-hover-card);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
 .nav-tab-btn {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.45rem 0.85rem;
-  font-size: 0.825rem;
+  gap: 0.5rem;
+  padding: 0.48rem 0.95rem;
+  font-size: 0.835rem;
   font-weight: 600;
   color: var(--text-muted);
   background: transparent;
@@ -1435,6 +1446,12 @@ select.app-select:focus, input.app-input:focus {
   color: var(--text-muted);
 }
 
+.form-group input.app-input,
+.form-group select.app-select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .form-section-title {
   font-size: 0.8rem;
   font-weight: 800;
@@ -1739,7 +1756,85 @@ select.app-select:focus, input.app-input:focus {
   line-height: 1.4;
 }
 
-/* Permission Checkbox Cards in Form */
+/* Authentication Form Full-Width Inputs & Eye Toggle */
+.auth-form {
+  width: 100%;
+}
+
+.auth-form .form-group {
+  width: 100%;
+  margin-bottom: 1.15rem;
+}
+
+.auth-form .form-group label {
+  display: block;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.auth-form .input-icon-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.auth-form input.app-input {
+  width: 100% !important;
+  height: 48px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-form input.app-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input.app-input {
+  padding-right: 3rem !important;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease, transform 0.15s ease;
+  z-index: 2;
+}
+
+.password-toggle-btn:hover {
+  color: var(--primary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--primary);
+}
 .perm-checkbox-card {
   display: flex;
   align-items: center;
@@ -1784,6 +1879,9 @@ select.app-select:focus, input.app-input:focus {
     gap: 0.75rem;
   }
   .header-nav-row {
+    padding: 0;
+  }
+  .header-nav-container {
     padding: 0.2rem 1rem 0.5rem 1rem;
   }
   .brand-badge {
@@ -1831,6 +1929,9 @@ select.app-select:focus, input.app-input:focus {
     padding: 0.55rem 0.85rem 0.35rem 0.85rem;
   }
   .header-nav-row {
+    padding: 0;
+  }
+  .header-nav-container {
     padding: 0.2rem 0.85rem 0.45rem 0.85rem;
   }
   .kpi-grid {
@@ -1911,8 +2012,12 @@ select.app-select:focus, input.app-input:focus {
 
   /* Navigation Tabs on Mobile */
   .header-nav-row {
-    padding: 0.25rem 0.5rem 0.45rem 0.5rem;
+    padding: 0;
     background: rgba(15, 23, 42, 0.45);
+  }
+  .header-nav-container {
+    justify-content: flex-start;
+    padding: 0.25rem 0.5rem 0.45rem 0.5rem;
   }
   .nav-tabs {
     padding: 0.2rem 0.25rem;
@@ -2135,6 +2240,10 @@ select.app-select:focus, input.app-input:focus {
     padding: 0.4rem 0.5rem 0.25rem 0.5rem;
   }
   .header-nav-row {
+    padding: 0;
+  }
+  .header-nav-container {
+    justify-content: flex-start;
     padding: 0.2rem 0.4rem 0.35rem 0.4rem;
   }
   .brand-text h1 {
@@ -2160,3 +2269,295 @@ select.app-select:focus, input.app-input:focus {
     font-size: 0.75rem !important;
   }
 }
+
+/* ============================================================== */
+/* PAYMENT & DEDUCTION SHEET DESIGN SYSTEM                        */
+/* ============================================================== */
+
+/* Photo Thumbnail in Table */
+.payment-thumb-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.payment-thumb-wrapper:hover {
+  transform: scale(1.08);
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.payment-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.payment-thumb-placeholder {
+  font-size: 1.25rem;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Channel Badges */
+.channel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.725rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.channel-badge.dorie {
+  background: rgba(129, 140, 248, 0.16);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  color: #a5b4fc;
+}
+
+[data-theme="light"] .channel-badge.dorie {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #5b21b6;
+}
+
+.channel-badge.floor {
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+[data-theme="light"] .channel-badge.floor {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0369a1;
+}
+
+.channel-badge.stock {
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+[data-theme="light"] .channel-badge.stock {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+/* Floor Fields Card inside Modal */
+.floor-fields-card {
+  background: rgba(56, 189, 248, 0.05);
+  border: 1px dashed rgba(56, 189, 248, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+/* Image Upload Dropzone in Modal */
+.image-upload-zone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  text-align: center;
+  background: var(--bg-input);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.image-upload-zone:hover,
+.image-upload-zone.dragover {
+  border-color: var(--primary);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.image-upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-card-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.image-preview-box {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: left;
+}
+
+.preview-thumb-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.preview-info-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.preview-filename {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+/* Deduction Tag in Table */
+.deduction-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.725rem;
+  font-weight: 800;
+  color: #fda4af;
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+}
+
+[data-theme="light"] .deduction-tag {
+  background: #ffe4e6;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
+
+/* Lightbox Modal */
+.lightbox-backdrop .modal-card {
+  background: #090d16;
+  border: 1.5px solid #2b3b55;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+}
+
+.lightbox-header {
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.lightbox-image-container {
+  width: 100%;
+  max-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+
+.lightbox-image-container img {
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+}
+
+.lightbox-details-bar {
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-size: 0.85rem;
+}
+
+/* Print Styles for Payment Sheet */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .app-header,
+  .master-toolbar-panel,
+  .view-toolbar button,
+  .btn,
+  .auth-screen-overlay,
+  .toast-container,
+  .modal-backdrop {
+    display: none !important;
+  }
+  .app-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  .tab-view {
+    display: none !important;
+  }
+  .tab-view.active,
+  #payment-sheet-view {
+    display: block !important;
+  }
+  .table-container {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+  }
+  .data-table {
+    font-size: 9pt !important;
+    color: #000 !important;
+  }
+  .data-table th,
+  .data-table td {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+    background: transparent !important;
+    padding: 4px 6px !important;
+  }
+  .data-table th {
+    background: #e2e8f0 !important;
+    font-weight: 800 !important;
+  }
+  .payment-thumb-wrapper {
+    border: 1px solid #000 !important;
+  }
+  .kpi-grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+    border: 1px solid #000 !important;
+    page-break-inside: avoid;
+  }
+  .kpi-card {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #000 !important;
+    padding: 0.5rem !important;
+  }
+  .kpi-value {
+    color: #000 !important;
+  }
+}
+

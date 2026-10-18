@@ -32,19 +32,26 @@
         <div id="auth-error-alert" class="auth-alert" style="display: none;"></div>
 
         <div class="form-group" style="margin-bottom: 1rem;">
-          <label for="login-username">Username:</label>
+          <label for="login-username" style="margin-bottom: 0.45rem;">Username:</label>
           <div class="input-icon-wrapper">
             <input type="text" class="app-input" id="login-username" required placeholder="Enter username (e.g. admin)" autocomplete="username" autofocus>
           </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 1.25rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-            <label for="login-password" style="margin: 0;">Password:</label>
-            <button type="button" id="btn-toggle-login-pass" class="btn-text-link" style="font-size: 0.75rem; color: var(--primary); background: none; border: none; cursor: pointer;">Show</button>
-          </div>
-          <div class="input-icon-wrapper">
+          <label for="login-password" style="margin-bottom: 0.45rem;">Password:</label>
+          <div class="input-icon-wrapper password-input-wrapper">
             <input type="password" class="app-input" id="login-password" required placeholder="Enter password" autocomplete="current-password">
+            <button type="button" id="btn-toggle-login-pass" class="password-toggle-btn" aria-label="Toggle password visibility" title="Show password">
+              <svg class="eye-icon eye-open" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="eye-icon eye-closed" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -135,60 +142,71 @@
 
     <!-- Navigation Tabs Row -->
     <div class="header-nav-row">
-      <nav class="nav-tabs" id="main-nav-tabs">
-        <button class="nav-tab-btn active" data-tab="master-inventory">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="3" y1="9" x2="21" y2="9"></line>
-            <line x1="9" y1="21" x2="9" y2="9"></line>
-          </svg>
-          <span class="tab-label">Master Inventory</span>
-          <span class="badge-pill" id="badge-master-count">0</span>
-        </button>
+      <div class="header-nav-container">
+        <nav class="nav-tabs" id="main-nav-tabs">
+          <button class="nav-tab-btn active" data-tab="master-inventory">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="3" y1="9" x2="21" y2="9"></line>
+              <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            <span class="tab-label">Master Inventory</span>
+            <span class="badge-pill" id="badge-master-count">0</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="receiving-log">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          <span class="tab-label">Receiving Log</span>
-          <span class="badge-pill" id="badge-rec-count">0</span>
-        </button>
+          <button class="nav-tab-btn" data-tab="receiving-log">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="tab-label">Receiving Log</span>
+            <span class="badge-pill" id="badge-rec-count">0</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="dispatch-log">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
-          </svg>
-          <span class="tab-label">Dispatch Log</span>
-          <span class="badge-pill" id="badge-dis-count">0</span>
-        </button>
+          <button class="nav-tab-btn" data-tab="dispatch-log">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span class="tab-label">Dispatch Log</span>
+            <span class="badge-pill" id="badge-dis-count">0</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="final-style">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-          <span class="tab-label">Daily Sheet</span>
-          <span class="badge-pill" id="badge-final-count">0</span>
-        </button>
+          <button class="nav-tab-btn" data-tab="final-style">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span class="tab-label">Daily Sheet</span>
+            <span class="badge-pill" id="badge-final-count">0</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="contractors">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
-          <span class="tab-label">Contractors</span>
-        </button>
+          <button class="nav-tab-btn" data-tab="payment-sheet" id="nav-btn-payment-sheet">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+            <span class="tab-label">Payment Sheet</span>
+            <span class="badge-pill" id="badge-payment-count">0</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="neon-sync">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-          </svg>
-          <span class="tab-label">Neon Cloud</span>
-        </button>
-      </nav>
+          <button class="nav-tab-btn" data-tab="contractors">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span class="tab-label">Contractors</span>
+          </button>
+
+          <button class="nav-tab-btn" data-tab="neon-sync">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+            </svg>
+            <span class="tab-label">Neon Cloud</span>
+          </button>
+        </nav>
+      </div>
     </div>
   </header>
 
@@ -696,6 +714,150 @@
           </div>
         </aside>
       </div>
+    <!-- ============================================================== -->
+    <!-- TAB: PAYMENT & DEDUCTION MANAGEMENT SHEET                      -->
+    <!-- (Image Entries, Cutoff Deductions, Dorie & Floor Challans)    -->
+    <!-- ============================================================== -->
+    <section id="payment-sheet-view" class="tab-view">
+      <!-- Toolbar Banner -->
+      <div class="view-toolbar" style="margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+            <span>Payment & Deduction Management</span>
+            <span class="badge-tag inline" style="font-size: 0.725rem; text-transform: none;">ادائیگی، کٹوتی و چالان شیٹ</span>
+          </h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            تصویر کے ساتھ ادائیگی، کٹوتی (Deduction)، ڈوری پر لی گئی پیمنٹ اور دیگر فلورز کے چالان کی مکمل ٹریکنگ
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="btn-open-payment-modal">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>+ New Payment Entry</span>
+          </button>
+
+          <button class="btn btn-secondary btn-sm" id="btn-print-payment-sheet" title="Print clean official payment sheet">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            <span>Print Sheet</span>
+          </button>
+
+          <button class="btn btn-secondary btn-sm" id="btn-export-payment-csv" title="Export to CSV / Excel spreadsheet">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            </svg>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Payment KPI Cards (5 Cards Grid) -->
+      <section class="kpi-grid" style="margin-bottom: 1.25rem;">
+        <div class="kpi-card cyan">
+          <span class="kpi-label">Total Claim Amount</span>
+          <div class="kpi-value" id="kpi-pay-total-amount">Rs. 0</div>
+          <span class="kpi-sub"><strong id="kpi-pay-total-pcs">0</strong> pcs total claimed</span>
+        </div>
+
+        <div class="kpi-card emerald">
+          <span class="kpi-label">Payment Received (وصول شدہ)</span>
+          <div class="kpi-value" id="kpi-pay-received-amount">Rs. 0</div>
+          <span class="kpi-sub"><strong id="kpi-pay-received-pcs">0</strong> pcs payment cleared</span>
+        </div>
+
+        <div class="kpi-card amber">
+          <span class="kpi-label">Pending Balance (باقی رقم)</span>
+          <div class="kpi-value" id="kpi-pay-balance-amount">Rs. 0</div>
+          <span class="kpi-sub"><strong id="kpi-pay-balance-pcs">0</strong> pcs balance due</span>
+        </div>
+
+        <div class="kpi-card rose">
+          <span class="kpi-label">Deductions (ڈڈکشن کٹوتی)</span>
+          <div class="kpi-value" id="kpi-pay-deduction-amount">Rs. 0</div>
+          <span class="kpi-sub"><strong id="kpi-pay-deducted-pcs">0</strong> pcs late / cut-off deduction</span>
+        </div>
+
+        <div class="kpi-card indigo">
+          <span class="kpi-label">Channels Distribution</span>
+          <div class="kpi-value" style="font-size: 1.25rem;">
+            <span id="kpi-pay-dorie-count" style="color: #a5b4fc;">0</span> 🧵 / <span id="kpi-pay-floor-count" style="color: #38bdf8;">0</span> 🏢
+          </div>
+          <span class="kpi-sub">Dorie vs Floor Transfer claims</span>
+        </div>
+      </section>
+
+      <!-- Filter and Search Toolbar Panel -->
+      <div class="master-toolbar-panel" style="margin-bottom: 1.25rem;">
+        <div class="master-filter-row">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted)">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="payment-search-input" placeholder="Search Style Code, Contractor, Floor, Challan #, Remarks...">
+          </div>
+
+          <div class="filter-group">
+            <select class="app-select" id="filter-payment-channel">
+              <option value="">All Payment Channels</option>
+              <option value="dorie">🧵 Dorie Claims (ڈوری پر لی تھی)</option>
+              <option value="floor_transfer">🏢 Floor Transfers (دیگر فلور سے چالان)</option>
+              <option value="stock_direct">📦 Direct Stock (مین ویئرہاؤس)</option>
+            </select>
+
+            <select class="app-select" id="filter-payment-status">
+              <option value="">All Balances</option>
+              <option value="Pending">⏳ Pending Payment (> 0 Balance)</option>
+              <option value="Partial">⚡ Partial Payment</option>
+              <option value="Fully Paid">✅ Fully Paid (0 Balance)</option>
+              <option value="Deduction Settled">✂️ Deduction Settled</option>
+            </select>
+
+            <select class="app-select" id="filter-payment-contractor">
+              <option value="">All Contractors</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Sheet Table Container -->
+      <div class="table-container">
+        <table class="data-table" id="table-payment-sheet">
+          <thead>
+            <tr class="column-header">
+              <th style="width: 55px; text-align: center;">PHOTO</th>
+              <th style="width: 50px; text-align: center;">SR</th>
+              <th>STYLE CODE & SHIP</th>
+              <th>CATEGORY</th>
+              <th>CONTRACTOR</th>
+              <th>PAYMENT CHANNEL & ROUTE</th>
+              <th>CUTOFF & SUBMIT</th>
+              <th style="text-align: right;">TOTAL PCS & RATE</th>
+              <th style="text-align: right;">TOTAL BILL (PKR)</th>
+              <th style="text-align: right; background: rgba(16, 185, 129, 0.08);">PAID (PCS & PKR)</th>
+              <th style="text-align: right; background: rgba(244, 63, 94, 0.08);">BALANCE (PCS & PKR)</th>
+              <th style="text-align: right;">DEDUCTION</th>
+              <th style="text-align: center;">STATUS</th>
+              <th style="width: 140px; text-align: center;">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-payment-sheet">
+            <!-- Dynamically populated from JS -->
+          </tbody>
+          <tfoot id="tfoot-payment-sheet" style="font-weight: 800; background: var(--bg-card-hover);">
+            <!-- Totals row calculated automatically -->
+          </tfoot>
+        </table>
+      </div>
     </section>
 
     <!-- ============================================================== -->
@@ -878,9 +1040,6 @@
             <button type="button" class="form-toggle-tab" data-mode="dispatch" id="tab-btn-dispatch">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
               📤 Dispatch Form (H-Emb Out)
-            </button>
-            <button type="button" class="form-toggle-tab" data-mode="both" id="tab-btn-both">
-              📋 Full Details
             </button>
           </div>
 
@@ -1409,6 +1568,10 @@
                 <span>👥 Contractors Master</span>
               </label>
               <label class="perm-checkbox-card">
+                <input type="checkbox" id="perm-tab-payment" checked>
+                <span>💳 Payment Sheet</span>
+              </label>
+              <label class="perm-checkbox-card">
                 <input type="checkbox" id="perm-tab-neon">
                 <span>☁️ Neon Cloud & Settings</span>
               </label>
@@ -1445,6 +1608,393 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: NEW / EDIT PAYMENT & DEDUCTION ENTRY                   -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-payment-entry">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-payment-title">New Style Payment & Deduction Entry</h2>
+          <p id="modal-payment-subtitle" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+            تصویر، کٹوتی (Deduction)، ڈوری و دیگر فلور چالان کا مکمل ریکارڈ
+          </p>
+        </div>
+        <button type="button" class="btn btn-secondary btn-icon" onclick="closeModal('modal-payment-entry')">✕</button>
+      </div>
+
+      <form id="form-payment-entry">
+        <input type="hidden" id="payment-entry-id" value="">
+        <input type="hidden" id="payment-image-data" value="">
+
+        <div class="modal-body">
+          <!-- Inline Form Alert -->
+          <div id="modal-payment-alert" style="display: none; padding: 0.75rem 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.85rem; font-weight: 600;"></div>
+
+          <!-- Section 1: Image Upload / Visual Sample -->
+          <div class="form-section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            1. Style Design / Sample Photo (تصویر والی انٹری)
+          </div>
+
+          <div class="image-upload-zone" id="payment-image-zone">
+            <input type="file" id="payment-file-input" accept="image/*" style="display: none;">
+            <div class="image-upload-content" id="payment-upload-prompt">
+              <div class="upload-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Drag & Drop Style Photo here, or Click to Browse</div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.25rem 0 0.5rem 0;">Supports JPG, PNG, WEBP (Automatically optimized & compressed)</p>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-trigger-upload">
+                📷 Select Image File
+              </button>
+            </div>
+
+            <!-- Preview Box (Hidden until image selected) -->
+            <div class="image-preview-box" id="payment-preview-box" style="display: none;">
+              <img id="payment-preview-img" src="" alt="Style Sample Preview" class="preview-thumb-img">
+              <div class="preview-info-col">
+                <span class="preview-filename" id="payment-preview-filename">Sample Image</span>
+                <span class="badge-tag inline" style="margin-top: 4px; font-size: 0.7rem;">✓ Ready to Save</span>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.65rem;">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-change-image" style="padding: 2px 8px; font-size: 0.75rem;">Change</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-remove-image" style="color: var(--accent-rose); padding: 2px 8px; font-size: 0.75rem;">Remove</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Style & Contractor Identification -->
+          <div class="form-section-title" style="margin-top: 1.25rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            2. Style Code & Assignment
+            <span id="payment-style-hint" class="badge-tag inline" style="display: none; margin-left: auto; text-transform: none; font-size: 0.725rem;"></span>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label for="payment-style-code">Style Code * (Auto-Fetches):</label>
+              <input type="text" class="app-input" id="payment-style-code" required placeholder="Type Style Code..." list="styles-master-datalist" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+              <label for="payment-category">Category *:</label>
+              <select class="app-select" id="payment-category" required>
+                <option value="Shirt">Shirt</option>
+                <option value="Dupatta">Dupatta</option>
+                <option value="Trouser">Trouser</option>
+                <option value="Gala">Gala</option>
+                <option value="Sleeve">Sleeve</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="payment-contractor">Contractor Name *:</label>
+              <input type="text" class="app-input" id="payment-contractor" list="contractors-datalist" placeholder="e.g. Touseef, Asif" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="payment-ship">Ship / Lot / Batch:</label>
+              <input type="text" class="app-input" id="payment-ship" placeholder="e.g. CPC, Batch-A">
+            </div>
+            <div class="form-group">
+              <label for="payment-sr">SR No (Sheet Serial):</label>
+              <input type="number" class="app-input" id="payment-sr" placeholder="e.g. 1">
+            </div>
+          </div>
+
+          <!-- Section 3: Payment Channel & Route -->
+          <div class="form-section-title" style="margin-top: 1.25rem; color: #a5b4fc;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            3. Payment Channel & Floor Delivery Route (پیمنٹ کا ذریعہ و فلور چالان)
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group" style="grid-column: span 3;">
+              <label for="payment-channel-select">Payment Channel Type (کس طرح پیمنٹ لی؟) *:</label>
+              <select class="app-select" id="payment-channel-select" required style="font-weight: 700;">
+                <option value="dorie">🧵 Dorie Claim (ڈوری پر پیمنٹ لی تھی)</option>
+                <option value="floor_transfer">🏢 Other Floor Transfer (کسی اور فلور پر جمع کرا کر اسی فلور سے چالان وصول کر کے پیمنٹ لی)</option>
+                <option value="stock_direct">📦 Direct Stock Delivery (مین ویئرہاؤس چالان)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Floor Transfer Specific Fields (Highlight when floor transfer) -->
+          <div id="payment-floor-fields-box" class="floor-fields-card">
+            <div style="font-weight: 700; font-size: 0.8rem; color: var(--accent-blue); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span>🏢 Other Floor Transfer & Challan Details</span>
+              <span class="badge-tag inline" style="font-size: 0.65rem;">چالان وصولی ریکارڈ</span>
+            </div>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label for="payment-target-floor">Delivered to Floor / Dept:</label>
+                <input type="text" class="app-input" id="payment-target-floor" placeholder="e.g. 2nd Floor, Stitching, Finishing">
+              </div>
+
+              <div class="form-group">
+                <label for="payment-floor-challan-no">Floor Challan / Gatepass #:</label>
+                <input type="text" class="app-input" id="payment-floor-challan-no" placeholder="e.g. FL-892, CH-410">
+              </div>
+
+              <div class="form-group">
+                <label for="payment-floor-received-by">Challan Received By / Supervisor:</label>
+                <input type="text" class="app-input" id="payment-floor-received-by" placeholder="e.g. Zahid, Imran">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Target Dates & Cutoff Deadlines -->
+          <div class="form-section-title" style="margin-top: 1.25rem; color: var(--accent-amber);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            4. Dates & Cutoff Deadline (کٹوتی کی آخری تاریخ)
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="payment-cutoff-date">Target Cutoff Date (ڈیڈ لائن / آخری تاریخ) *:</label>
+              <input type="date" class="app-input" id="payment-cutoff-date" required>
+              <span style="font-size: 0.725rem; color: var(--text-muted); margin-top: 3px;">
+                💡 اس تاریخ تک دیا گیا مال پیمنٹ کا حقدار ہوتا ہے، باقی کی کٹوتی (Deduction) ہوتی ہے۔
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="payment-submission-date">Goods Submission / Claim Date:</label>
+              <input type="date" class="app-input" id="payment-submission-date">
+            </div>
+          </div>
+
+          <!-- Section 5: Quantities, Rates & Deduction Calculation -->
+          <div class="form-section-title" style="margin-top: 1.25rem; color: #34d399;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            5. Pieces, Rates & Live Deduction Calculations
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label for="payment-total-pcs">Total Order / Claim Pcs *:</label>
+              <input type="number" class="app-input" id="payment-total-pcs" min="1" required placeholder="e.g. 500">
+            </div>
+
+            <div class="form-group">
+              <label for="payment-rate-per-pc">Rate Per Pc (PKR) *:</label>
+              <input type="number" class="app-input" id="payment-rate-per-pc" min="0" step="0.5" required placeholder="e.g. 250">
+            </div>
+
+            <div class="form-group">
+              <label for="payment-total-amount">Total Bill Amount (PKR):</label>
+              <input type="number" class="app-input" id="payment-total-amount" readonly style="background: var(--bg-card-hover); font-weight: 800; color: #38bdf8;">
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label for="payment-delivered-pcs">Delivered In Time (Before Cutoff):</label>
+              <input type="number" class="app-input" id="payment-delivered-pcs" min="0" placeholder="e.g. 420">
+              <span style="font-size: 0.725rem; color: var(--text-muted); margin-top: 3px;">10 تاریخ تک اسٹاک میں دیے گئے پیس</span>
+            </div>
+
+            <div class="form-group">
+              <label for="payment-deducted-pcs" style="color: var(--accent-rose);">Deducted Pcs (Late / Missing) ✂️:</label>
+              <input type="number" class="app-input" id="payment-deducted-pcs" min="0" placeholder="e.g. 80" style="border-color: rgba(244,63,94,0.4);">
+              <span style="font-size: 0.725rem; color: var(--accent-rose); margin-top: 3px;">جو پیس نہیں بن سکے (کٹوتی)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="payment-deduction-amount" style="color: var(--accent-rose);">Deduction Loss PKR:</label>
+              <input type="number" class="app-input" id="payment-deduction-amount" readonly style="background: rgba(244,63,94,0.1); color: #fda4af; font-weight: 800;">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="payment-paid-pcs">Already Paid Pcs (کتنے پیس کی پیمنٹ مل چکی):</label>
+              <input type="number" class="app-input" id="payment-paid-pcs" min="0" placeholder="e.g. 420">
+            </div>
+
+            <div class="form-group">
+              <label for="payment-paid-amount">Already Received Payment (PKR):</label>
+              <input type="number" class="app-input" id="payment-paid-amount" min="0" placeholder="e.g. 105000">
+            </div>
+          </div>
+
+          <!-- Live Financial KPI Preview Row inside Modal -->
+          <div class="form-kpi-grid" style="margin: 1.25rem 0 0.5rem 0;">
+            <div class="form-kpi-card sky">
+              <span class="form-kpi-label">Total Bill</span>
+              <div class="form-kpi-val" id="payment-preview-total-bill">Rs. 0</div>
+              <span class="form-kpi-sub">Total batch value</span>
+            </div>
+
+            <div class="form-kpi-card rose">
+              <span class="form-kpi-label">Deduction Loss</span>
+              <div class="form-kpi-val" id="payment-preview-deduction">Rs. 0</div>
+              <span class="form-kpi-sub" id="payment-preview-ded-pcs">0 pcs deducted</span>
+            </div>
+
+            <div class="form-kpi-card emerald">
+              <span class="form-kpi-label">Received Payment</span>
+              <div class="form-kpi-val" id="payment-preview-paid">Rs. 0</div>
+              <span class="form-kpi-sub" id="payment-preview-paid-pcs">0 pcs cleared</span>
+            </div>
+
+            <div class="form-kpi-card amber">
+              <span class="form-kpi-label">Remaining Balance</span>
+              <div class="form-kpi-val" id="payment-preview-balance">Rs. 0</div>
+              <span class="form-kpi-sub" id="payment-preview-bal-pcs">0 pcs pending</span>
+            </div>
+          </div>
+
+          <!-- Section 6: Remarks -->
+          <div class="form-group" style="margin-top: 1rem;">
+            <label for="payment-remarks">Remarks & Payment Notes:</label>
+            <textarea class="app-input" id="payment-remarks" rows="2" placeholder="e.g. Dorie per li thi payment, challan supervisor Zahid say receive kiya..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-payment-entry')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-payment-entry">
+            ✓ Save Payment Entry
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: RECORD PAYMENT INSTALLMENT / RECEIPT                    -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop" id="modal-payment-receipt">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <div>
+          <h2>Record Payment Installment</h2>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">پیمنٹ وصولی کا اندراج (Installment Receipt)</p>
+        </div>
+        <button type="button" class="btn btn-secondary btn-icon" onclick="closeModal('modal-payment-receipt')">✕</button>
+      </div>
+
+      <form id="form-payment-receipt">
+        <input type="hidden" id="receipt-payment-id" value="">
+
+        <div class="modal-body">
+          <!-- Summary Banner -->
+          <div class="contractor-summary-card" style="margin-bottom: 1.15rem; padding: 0.85rem 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span class="style-code-badge" id="receipt-summary-style">STYLE</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 0.4rem;" id="receipt-summary-cat">Category</span>
+              </div>
+              <span class="badge-tag inline" id="receipt-summary-contractor">Contractor</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 0.75rem; font-size: 0.825rem;">
+              <span>Total Bill: <strong id="receipt-summary-total">Rs. 0</strong></span>
+              <span>Already Paid: <strong style="color: #34d399;" id="receipt-summary-paid">Rs. 0</strong></span>
+              <span>Due: <strong style="color: #f43f5e;" id="receipt-summary-due">Rs. 0</strong></span>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="receipt-amount">Received Amount (PKR) *:</label>
+              <input type="number" class="app-input" id="receipt-amount" min="1" step="0.5" required placeholder="e.g. 50000">
+            </div>
+
+            <div class="form-group">
+              <label for="receipt-pcs">Pieces Covered:</label>
+              <input type="number" class="app-input" id="receipt-pcs" min="0" placeholder="e.g. 200">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="receipt-date">Payment Date *:</label>
+              <input type="date" class="app-input" id="receipt-date" required>
+            </div>
+
+            <div class="form-group">
+              <label for="receipt-mode">Payment Mode:</label>
+              <select class="app-select" id="receipt-mode">
+                <option value="Cash">Cash (نقد)</option>
+                <option value="Bank Transfer">Bank Transfer (آن لائن)</option>
+                <option value="Floor Slip">Floor Slip (فلور رسید)</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Dorie Voucher">Dorie Voucher</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="receipt-no">Receipt / Voucher / Slip #:</label>
+            <input type="text" class="app-input" id="receipt-no" placeholder="e.g. REC-1049, Dorie-12">
+          </div>
+
+          <div class="form-group">
+            <label for="receipt-notes">Notes / Received By:</label>
+            <input type="text" class="app-input" id="receipt-notes" placeholder="e.g. Received full balance from accounts">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-payment-receipt')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-receipt">
+            ✓ Add Payment Receipt
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: IMAGE PREVIEW LIGHTBOX                                  -->
+  <!-- ============================================================== -->
+  <div class="modal-backdrop lightbox-backdrop" id="modal-image-preview">
+    <div class="modal-card lightbox-card" style="max-width: 720px; overflow: hidden; padding: 0;">
+      <div class="lightbox-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span class="style-code-badge" id="lightbox-style-badge">STYLE</span>
+          <span style="font-weight: 700; font-size: 0.85rem;" id="lightbox-category-text">Category</span>
+          <span id="lightbox-channel-badge"></span>
+        </div>
+        <button type="button" class="btn btn-secondary btn-icon" onclick="closeModal('modal-image-preview')" style="color: #fff;">✕</button>
+      </div>
+
+      <div class="lightbox-image-container">
+        <img id="lightbox-full-img" src="" alt="Full Style Photo">
+      </div>
+
+      <div class="lightbox-details-bar" id="lightbox-details-bar">
+        <!-- Dynamically populated stats -->
+      </div>
     </div>
   </div>
 
